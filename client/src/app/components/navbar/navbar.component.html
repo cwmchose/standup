@@ -1,27 +1,15 @@
-<nav class="navbar navbar-expand-lg navbar-dark fxFlex">
-  <a class="navbar-brand" href="#">
-    ASS
-  </a>
-
-  <button class="navbar-toggler" type="button"
-          (click)="toggleNavbar()">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-
-
-  <div class="collapse navbar-collapse"
-       [ngClass]="{ 'show': navbarOpen }">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item">
-        <a class="nav-link" href="#">Standups</a>
+<nav class="navbar navbar-expand-lg">
+  <a routerLink="/" class="navbar-brand">ASS</a>
+  <div class="collapse navbar-collapse">
+    <ul class="navbar-nav ml-auto mt-2">
+      <li class="nav-item active">
+        <a routerLink="/standups" class="nav-link">Standups</a>
       </li>
-
       <li class="nav-item">
-        <a class="nav-link" href="#">Create Team</a>
+        <a routerLink="/create-team" class="nav-link">Create Team</a>
       </li>
-
       <li class="nav-item">
-        <a class="nav-link" href="#">Manage Teams</a>
+        <a routerLink="/manage-teams" class="nav-link">Manage Teams</a>
       </li>
     </ul>
   </div>
