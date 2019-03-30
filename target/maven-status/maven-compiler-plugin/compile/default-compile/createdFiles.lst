@@ -1,3 +1,9 @@
+<<<<<<< HEAD
 WebController.class
 TestController.class
+=======
+com/g1/standupapp/StandupappApplication.class
+WebController.class
+com/g1/standupapp/controllers/TestController.class
+>>>>>>> 356b62333375c5c26cc44ccc839298bf308cb586
 AlexaController.class

@@ -1,10 +1,4 @@
-C:\Users\Trooper989\standupapp\src\main\java\com\g1\standupapp\models\StandupEntry.java
-C:\Users\Trooper989\standupapp\src\main\java\com\g1\standupapp\models\User.java
-C:\Users\Trooper989\standupapp\src\main\java\com\g1\standupapp\controllers\TestController.java
-C:\Users\Trooper989\standupapp\src\main\java\com\g1\standupapp\repositories\UserRepository.java
-C:\Users\Trooper989\standupapp\src\main\java\com\g1\standupapp\controllers\WebController.java
-C:\Users\Trooper989\standupapp\src\main\java\com\g1\standupapp\repositories\StandupEntryRepository.java
-C:\Users\Trooper989\standupapp\src\main\java\com\g1\standupapp\repositories\TeamRepository.java
-C:\Users\Trooper989\standupapp\src\main\java\com\g1\standupapp\controllers\AlexaController.java
-C:\Users\Trooper989\standupapp\src\main\java\com\g1\standupapp\StandupappApplication.java
-C:\Users\Trooper989\standupapp\src\main\java\com\g1\standupapp\models\Team.java
+/home/osboxes/code/cap/standupapp/src/main/java/com/g1/standupapp/controllers/WebController.java
+/home/osboxes/code/cap/standupapp/src/main/java/com/g1/standupapp/controllers/AlexaController.java
+/home/osboxes/code/cap/standupapp/src/main/java/com/g1/standupapp/StandupappApplication.java
+/home/osboxes/code/cap/standupapp/src/main/java/com/g1/standupapp/controllers/TestController.java
