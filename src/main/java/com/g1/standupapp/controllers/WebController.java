@@ -1,5 +1,6 @@
 package com.g1.standupapp.controllers;
 
+import java.util.HashSet;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -38,15 +39,27 @@ public class WebController{
 	@PostMapping("/user")
 	public User saveUser(@Valid @RequestBody User user) {
     return userRepository.save(user);
-}
+	}
+
+	@PostMapping("/user/test")
+	public User dummyUser() {
+		User dummy = new User();
+		dummy.setFirstName("Dummy");
+		dummy.setLastName("User");
+		dummy.setUsername("vim4life");
+		dummy.setPassword("elitism");
+		dummy.setTeams(new HashSet<>());
+
+		return userRepository.save(dummy);
+		}
 
 	@GetMapping("/user/{id}")
-	public User getUserById(@PathVariable(value = "id") Integer userId) {
+	public User getUserById(@PathVariable(value = "id") Long userId) {
 		return userRepository.findById(userId).get();
 	}
 
 	@PutMapping("/user/{id}")
-	public User updateUser(@PathVariable(value = "id") Integer userId, @Valid @RequestBody User userDetails) {
+	public User updateUser(@PathVariable(value = "id") Long userId, @Valid @RequestBody User userDetails) {
 
 		User user = userRepository.findById(userId).get();
 
@@ -61,7 +74,7 @@ public class WebController{
 	}
 
 	@DeleteMapping("/user/{id}")
-	public ResponseEntity<?> deleteUser(@PathVariable(value = "id") Integer userId) {
+	public ResponseEntity<?> deleteUser(@PathVariable(value = "id") Long userId) {
 		User user = userRepository.findById(userId).get();
 
 		userRepository.delete(user);
@@ -80,12 +93,12 @@ public class WebController{
 }
 
 	@GetMapping("/team/{id}")
-	public Team getTeamById(@PathVariable(value = "id") Integer teamId) {
+	public Team getTeamById(@PathVariable(value = "id") Long teamId) {
 		return teamRepository.findById(teamId).get();
 	}
 
 	@PutMapping("team/{id}")
-	public Team updateTeam(@PathVariable(value = "id") Integer teamId, @Valid @RequestBody Team teamDetails) {
+	public Team updateTeam(@PathVariable(value = "id") Long teamId, @Valid @RequestBody Team teamDetails) {
 
 		Team team = teamRepository.findById(teamId).get();
 
@@ -98,7 +111,7 @@ public class WebController{
 	}
 
 	@DeleteMapping("/team/{id}")
-	public ResponseEntity<?> deleteTeam(@PathVariable(value = "id") Integer teamId) {
+	public ResponseEntity<?> deleteTeam(@PathVariable(value = "id") Long teamId) {
 		Team team = teamRepository.findById(teamId).get();
 
 		teamRepository.delete(team);
@@ -117,12 +130,12 @@ public class WebController{
 }
 
 	@GetMapping("/entry/{id}")
-	public StandupEntry getStandupEntryById(@PathVariable(value = "id") Integer standupEntryId) {
+	public StandupEntry getStandupEntryById(@PathVariable(value = "id") Long standupEntryId) {
 		return standupEntryRepository.findById(standupEntryId).get();
 	}
 
 	@PutMapping("entry/{id}")
-	public StandupEntry updateStandupEntry(@PathVariable(value = "id") Integer standupEntryId, @Valid @RequestBody StandupEntry standupEntryDetails) {
+	public StandupEntry updateStandupEntry(@PathVariable(value = "id") Long standupEntryId, @Valid @RequestBody StandupEntry standupEntryDetails) {
 
 		StandupEntry standupEntry = standupEntryRepository.findById(standupEntryId).get();
 
@@ -131,7 +144,7 @@ public class WebController{
 	}
 
 	@DeleteMapping("/entry/{id}")
-	public ResponseEntity<?> deleteStandupEntry(@PathVariable(value = "id") Integer standupEntryId) {
+	public ResponseEntity<?> deleteStandupEntry(@PathVariable(value = "id") Long standupEntryId) {
 		StandupEntry standupEntry = standupEntryRepository.findById(standupEntryId).get();
 
 		standupEntryRepository.delete(standupEntry);
