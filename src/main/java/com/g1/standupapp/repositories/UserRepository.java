@@ -7,13 +7,15 @@ import com.g1.standupapp.models.User;
 
 import org.springframework.data.repository.CrudRepository;
 
-public interface UserRepository extends CrudRepository<User, String> {
+public interface UserRepository extends CrudRepository<User, Integer> {
 
     @Override
     public List<User> findAll();
 
-    public User findById(Integer userId);
+    public Optional<User> findById(Integer userId);
     
+    public Optional<User> findByUsername(String username);
+
     
 
 }
