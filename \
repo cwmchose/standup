@@ -1,0 +1,58 @@
+{
+  "actions": [
+    {
+      "description": "Default Welcome Intent",
+      "name": "MAIN",
+      "fulfillment": {
+        "conversationName": "Stand Up App"
+      },
+      "intent": {
+        "name": "actions.intent.MAIN",
+        "trigger": {
+          "queryPatterns": [
+            "talk to Stand up App"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Create",
+      "intent": {
+        "name": "actions.intent.CREATE_STANDUP",
+		"parameters": [
+			{
+				
+			}
+		],
+        "trigger": {
+          "queryPatterns": [
+            "create stand up"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Playback",
+      "intent": {
+        "name": "actions.intent.PLAYBACK_STANDUP",
+		"parameters": [
+			{
+				
+			}
+		],
+        "trigger": {
+          "queryPatterns": [
+            "playback stand up"
+          ]
+        }
+      }
+    }
+  ],
+  "conversations": {
+    "Stand Up App": {
+      "name": "Stand Up App",
+      "url": "localhost:8080"
+    }
+  },
+  "locale": "en"
+}

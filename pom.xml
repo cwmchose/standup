@@ -35,6 +35,7 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
+			<optional>true</optional>
 			<scope>runtime</scope>
 		</dependency>
         <dependency>
@@ -45,13 +46,19 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
-		<!-- https://mvnrepository.com/artifact/com.google.actions/actions-on-google 
+		<!-- https://mvnrepository.com/artifact/com.google.actions/actions-on-google -->
 		<dependency>
 		    <groupId>com.google.actions</groupId>
 		    <artifactId>actions-on-google</artifactId>
-		    <version>1.0.0</version>
+		    <version>1.0.2</version>
 		</dependency>
--->
+		<!-- https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
+		<dependency>
+		    <groupId>com.googlecode.json-simple</groupId>
+		    <artifactId>json-simple</artifactId>
+		    <version>1.1.1</version>
+		</dependency>
+		
 	</dependencies>
 
 

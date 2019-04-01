@@ -15,10 +15,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.ui.Model;
 
 @RestController
-@RequestMapping("/web")
 public class WebController{
 
 	@Autowired
@@ -37,13 +38,22 @@ public class WebController{
 
 	@PostMapping("/user")
 	public User saveUser(@Valid @RequestBody User user) {
-    return userRepository.save(user);
-}
+	
+    	return userRepository.save(user);
+	}
 
 	@GetMapping("/user/{id}")
 	public User getUserById(@PathVariable(value = "id") Integer userId) {
 		return userRepository.findById(userId).get();
 	}
+
+   	@RequestMapping("/test")
+	@ResponseBody
+    public String test(String name, Model model) {
+		System.out.println("swell");
+		
+        return "swell";
+    } 
 
 	@PutMapping("/user/{id}")
 	public User updateUser(@PathVariable(value = "id") Integer userId, @Valid @RequestBody User userDetails) {

@@ -1,3 +1,4 @@
 com/g1/standupapp/StandupappApplication.class
 com/g1/standupapp/controllers/TestController.class
+com/g1/standupapp/controllers/GoogleAssistantController.class
 AlexaController.class
