@@ -10,7 +10,8 @@ public class StandupEntry{
 
     @Id
     @Column(name = "standup_entry_id", nullable = false)
-    private Integer standupEntryID;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long standupEntryID;
 
     @ManyToOne
     @JoinColumn(name = "team_id")
@@ -27,6 +28,11 @@ public class StandupEntry{
     private byte[] data;
 
     //Getters and Setters
+
+    public Long getStandupEntryID() {
+        return this.standupEntryID;
+    }
+
 
     public Team getTeam() {
         return team;

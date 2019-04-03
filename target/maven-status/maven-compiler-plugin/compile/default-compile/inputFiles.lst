@@ -1,3 +1,5 @@
+/home/osboxes/code/cap/standupapp/src/main/java/com/g1/standupapp/SecurityConfig.java
+/home/osboxes/code/cap/standupapp/src/main/java/com/g1/standupapp/controllers/GoogleAssistantController.java
 /home/osboxes/code/cap/standupapp/src/main/java/com/g1/standupapp/repositories/UserRepository.java
 /home/osboxes/code/cap/standupapp/src/main/java/com/g1/standupapp/repositories/TeamRepository.java
 /home/osboxes/code/cap/standupapp/src/main/java/com/g1/standupapp/models/StandupEntry.java

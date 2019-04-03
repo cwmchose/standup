@@ -12,14 +12,10 @@ public class User{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "user_id")
-    private Integer userID;
+    private Long userID;
 
-    public Integer getUserID() {
+    public Long getUserID() {
         return this.userID;
-    }
-
-    public void setUserID(Integer userID) {
-        this.userID = userID;
     }
 
     public Set<Team> getTeams() {
