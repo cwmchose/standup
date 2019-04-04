@@ -42,7 +42,7 @@ public class GoogleAssistantController extends DialogflowApp {
 	TeamRepository teamRepository;
 
 	@RequestMapping("/gatest")
-    public String gatest(ActionRequest request) {
+    public ActionResponse gatest(ActionRequest request) {
 		ResponseBuilder responseBuilder = getResponseBuilder(request);
 		responseBuilder.add("welcome");
 		

@@ -1,6 +1,5 @@
 import { LoginComponent } from './pages/login/login.component';
 import { CreateTeamComponent } from './pages/create-team/create-team.component';
-import { ShowRecipeComponent } from './pages/manage-teams/maange-teams.component';
 import { ManageTeamsComponent } from './pages/manage-teams/manage-teams.component';
 import { StandupsComponent } from './pages/standups/standups.component'
 
