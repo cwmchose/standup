@@ -1,5 +1,6 @@
 package com.g1.standupapp.repositories;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,4 +13,8 @@ public interface StandupEntryRepository extends CrudRepository<StandupEntry,Long
     public List<StandupEntry> findAll();
 
     public Optional<StandupEntry> findById(Long standupEntryID);
+
+    public Optional<StandupEntry> findByDateAndTeam_TeamNameAndUser_Email(Date Date, String teamName, String email );
+    
+    public List<StandupEntry> findByDateAndTeam_TeamName(Date Date, String teamName);
 }

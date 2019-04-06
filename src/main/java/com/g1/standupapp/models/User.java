@@ -26,11 +26,8 @@ public class User{
         this.teams = teams;
     }
 
-    @Column(name = "username", nullable = false)
-    private String username;
-
-    @Column(name = "password", nullable = false)
-    private String password;
+    @Column(name = "email", unique = true, nullable = false)
+    private String email;
         
     @Column(name = "first_name", nullable = false)
     private String firstName;
@@ -45,28 +42,21 @@ public class User{
         super();
     }
 
-    public User(String username, String password, String firstName, String lastName, Set<Team> teams){
-        this.username = username;
-        this.password = password;
+    public User(String email, String firstName, String lastName, Set<Team> teams){
+        this.email = email
+;
         this.firstName = firstName;
         this.lastName = lastName;
         this.teams = teams;
     }
 
-    public String getUsername() {
-        return username;
+    public String getEmail() {
+        return email;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public void setEmail(String email) {
+        this.email = email
+;
     }
 
     public String getFirstName() {

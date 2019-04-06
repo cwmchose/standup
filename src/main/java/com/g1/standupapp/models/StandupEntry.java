@@ -5,7 +5,7 @@ import java.util.Date;
 import javax.persistence.*;
 
 @Entity
-@Table(name ="Standup_Entry")
+@Table(name ="Standup_Entry", uniqueConstraints = {@UniqueConstraint(columnNames = {"date","team_id","user_id"})})
 public class StandupEntry{
 
     @Id
@@ -20,6 +20,10 @@ public class StandupEntry{
     @Column(name = "date", nullable = false)
     private Date date;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "standup_id")
+    private Standup standup;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -29,10 +33,21 @@ public class StandupEntry{
 
     //Getters and Setters
 
+	public void setStandupEntryID(Long standupEntryID) {
+        this.standupEntryID = standupEntryID;
+    }
+
+    public Standup getStandup() {
+        return this.standup;
+    }
+
+    public void setStandup(Standup standup) {
+        this.standup = standup;
+    }
+
     public Long getStandupEntryID() {
         return this.standupEntryID;
     }
-
 
     public Team getTeam() {
         return team;

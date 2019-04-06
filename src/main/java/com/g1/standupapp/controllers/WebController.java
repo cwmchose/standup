@@ -2,6 +2,7 @@ package com.g1.standupapp.controllers;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.validation.Valid;
 
@@ -46,14 +47,13 @@ public class WebController{
 		User dummy = new User();
 		dummy.setFirstName("Dummy");
 		dummy.setLastName("User");
-		dummy.setUsername("vim4life");
-		dummy.setPassword("elitism");
+		dummy.setEmail("vim4life");
 		dummy.setTeams(new HashSet<>());
 
 		return userRepository.save(dummy);
 		}
 
-	@GetMapping("/user/{id}")
+	@GetMapping("/user/id/{id}")
 	public User getUserById(@PathVariable(value = "id") Long userId) {
 		return userRepository.findById(userId).get();
 	}
@@ -65,9 +65,8 @@ public class WebController{
 
 		user.setFirstName(userDetails.getFirstName());
 		user.setLastName(userDetails.getLastName());
-		user.setPassword(userDetails.getPassword());
 		user.setTeams(userDetails.getTeams());
-		user.setUsername(userDetails.getUsername());
+		user.setEmail(userDetails.getEmail());
 
 		User updatedUser = userRepository.save(user);
 		return updatedUser;
@@ -139,6 +138,11 @@ public class WebController{
 
 		StandupEntry standupEntry = standupEntryRepository.findById(standupEntryId).get();
 
+		standupEntry.setUser(standupEntryDetails.getUser());
+		standupEntry.setTeam(standupEntryDetails.getTeam());
+		standupEntry.setData(standupEntryDetails.getData());
+		standupEntry.setDate(standupEntryDetails.getDate());
+
 		StandupEntry updatedStandupEntry = standupEntryRepository.save(standupEntry);
 		return updatedStandupEntry;
 	}
@@ -152,4 +156,34 @@ public class WebController{
 		return ResponseEntity.ok().build();
 	}
 
+	//////////////////////////////// Non Basic Crud Stuff
+
+	@GetMapping("user/email/{email}")
+	public User getUserByEmail(@PathVariable(value = "email") String email){
+		return userRepository.findByEmail(email).get();
+	}
+
+	@PostMapping("user/{email}/add/{teamName}")
+	public User addUserToTeam(@PathVariable(value = "email") String email, @PathVariable(value = "teamName") String teamName){
+		User user = getUserByEmail(email);
+		Set<Team> teams = user.getTeams();
+		teams.add(teamRepository.findByTeamName(teamName).get());
+		user.setTeams(teams);
+		userRepository.save(user);
+		return user;
+
+	}
+
+	@DeleteMapping("user/{email}/add/{teamName}")
+	public User deleteUserFromTeam(@PathVariable(value = "email") String email, @PathVariable(value = "teamName") String teamName){
+		User user = getUserByEmail(email);
+		Set<Team> teams = user.getTeams();
+		teams.remove(teamRepository.findByTeamName(teamName).get());
+		user.setTeams(teams);
+		userRepository.save(user);
+		return user;
+
+	}
+
+	
 }

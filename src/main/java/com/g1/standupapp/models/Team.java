@@ -14,7 +14,7 @@ public class Team{
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long teamID;
 
-    @Column(name = "team_name", nullable = false)
+    @Column(name = "team_name", unique = true, nullable = false)
     private String teamName;
 
     @Column(name = "scrum_master_username", nullable = false)
