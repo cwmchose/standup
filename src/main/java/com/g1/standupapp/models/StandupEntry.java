@@ -31,10 +31,8 @@ public class StandupEntry{
     @Column(name = "data")
     private byte[] data;
 
-    //Getters and Setters
-
-	public void setStandupEntryID(Long standupEntryID) {
-        this.standupEntryID = standupEntryID;
+    public Long getStandupEntryID() {
+        return this.standupEntryID;
     }
 
     public Standup getStandup() {
@@ -43,10 +41,6 @@ public class StandupEntry{
 
     public void setStandup(Standup standup) {
         this.standup = standup;
-    }
-
-    public Long getStandupEntryID() {
-        return this.standupEntryID;
     }
 
     public Team getTeam() {

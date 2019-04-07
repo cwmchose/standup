@@ -5,6 +5,8 @@ import java.util.Set;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 @Entity
 @Table(name = "Team")
 public class Team{
@@ -17,10 +19,11 @@ public class Team{
     @Column(name = "team_name", unique = true, nullable = false)
     private String teamName;
 
-    @Column(name = "scrum_master_username", nullable = false)
-    private String scrumMasterUsername;
+    @Column(name = "scrum_master_email", nullable = false)
+    private String scrumMasterEmail;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JsonManagedReference
     @JoinTable(
         name = "Team_Members",
         joinColumns = { @JoinColumn(name = "team_id") },
@@ -31,9 +34,9 @@ public class Team{
         super();
     }
 
-    public Team(String teamName, String scrumMasterUsername, Set<User> users) {
+    public Team(String teamName, String scrumMasterEmail, Set<User> users) {
         this.teamName = teamName;
-        this.scrumMasterUsername = scrumMasterUsername;
+        this.scrumMasterEmail = scrumMasterEmail;
         this.users = users;
     }
 
@@ -57,12 +60,12 @@ public class Team{
         this.teamName = teamName;
     }
 
-    public String getScrumMasterUsername() {
-        return scrumMasterUsername;
+    public String getScrumMasterEmail() {
+        return scrumMasterEmail;
     }
 
-    public void setScrumMasterUsername(String scrumMasterUsername) {
-        this.scrumMasterUsername = scrumMasterUsername;
+    public void setScrumMasterEmail(String scrumMasterEmail) {
+        this.scrumMasterEmail = scrumMasterEmail;
     }
 
 

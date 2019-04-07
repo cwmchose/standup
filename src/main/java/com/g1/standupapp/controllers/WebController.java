@@ -1,5 +1,6 @@
 package com.g1.standupapp.controllers;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -9,6 +10,7 @@ import javax.validation.Valid;
 import com.g1.standupapp.repositories.*;
 import com.g1.standupapp.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 @RestController
 @RequestMapping("/web")
@@ -32,6 +35,9 @@ public class WebController{
 	@Autowired
 	TeamRepository teamRepository;
 
+	@Autowired
+	StandupRepository standupRepository;
+
 	@GetMapping("/user")
 	public List<User> getAllUsers() {
     	return userRepository.findAll();
@@ -42,15 +48,40 @@ public class WebController{
     return userRepository.save(user);
 	}
 
-	@PostMapping("/user/test")
-	public User dummyUser() {
+	@GetMapping("/fillmewithyourtestdata")
+	public void dummyUser() {
 		User dummy = new User();
 		dummy.setFirstName("Dummy");
 		dummy.setLastName("User");
-		dummy.setEmail("vim4life");
+		dummy.setEmail("dummy@gmail.com");
 		dummy.setTeams(new HashSet<>());
+		userRepository.save(dummy);
 
-		return userRepository.save(dummy);
+		Team dummyTeam = new Team();
+		dummyTeam.setScrumMasterEmail("dummy@gmail.com");
+		dummyTeam.setTeamName("Alpha Team");
+		Set<User> userSet = new HashSet<User>();
+		userSet.add(dummy);
+		dummyTeam.setUsers(userSet);
+		teamRepository.save(dummyTeam);
+
+
+		StandupEntry standupEntry = new StandupEntry();
+		standupEntry.setDate(new Date());
+		standupEntry.setTeam(dummyTeam);
+		standupEntry.setUser(dummy);
+		standupEntryRepository.save(standupEntry);
+
+		Standup standup = new Standup();
+		standup.setDate(new Date());
+		standup.setTeam(dummyTeam);
+		Set<StandupEntry> standupSet = new HashSet<StandupEntry>();
+		standupSet.add(standupEntry);
+		standup.setStandups(standupSet);
+		
+		standupRepository.save(standup);
+
+
 		}
 
 	@GetMapping("/user/id/{id}")
@@ -102,7 +133,7 @@ public class WebController{
 		Team team = teamRepository.findById(teamId).get();
 
 		team.setTeamName(teamDetails.getTeamName());
-		team.setScrumMasterUsername(teamDetails.getScrumMasterUsername());
+		team.setScrumMasterEmail(teamDetails.getScrumMasterEmail());
 		team.setUsers(teamDetails.getUsers());
 
 		Team updatedTeam = teamRepository.save(team);
@@ -156,6 +187,43 @@ public class WebController{
 		return ResponseEntity.ok().build();
 	}
 
+	@GetMapping("/standup")
+	public List<StandupEntry> getAllStandups() {
+    	return standupEntryRepository.findAll();
+	}
+
+	@PostMapping("/standup")
+	public Standup saveStandup(@Valid @RequestBody Standup standup) {
+    return standupRepository.save(standup);
+}
+
+	@GetMapping("/standup/{id}")
+	public Standup getStandupById(@PathVariable(value = "id") Long standupId) {
+		return standupRepository.findById(standupId).get();
+	}
+
+	@PutMapping("standup/{id}")
+	public Standup updateStandup(@PathVariable(value = "id") Long standupId, @Valid @RequestBody Standup standupDetails) {
+
+		Standup standup = standupRepository.findById(standupId).get();
+
+		standup.setDate(standupDetails.getDate());
+		standup.setTeam(standupDetails.getTeam());
+		standup.setStandups(standupDetails.getStandups());
+
+		Standup updatedStandup = standupRepository.save(standup);
+		return updatedStandup;
+	}
+
+	@DeleteMapping("/standup/{id}")
+	public ResponseEntity<?> deleteStandup(@PathVariable(value = "id") Long standupId) {
+		Standup standup = standupRepository.findById(standupId).get();
+
+		standupRepository.delete(standup);
+
+		return ResponseEntity.ok().build();
+	}
+
 	//////////////////////////////// Non Basic Crud Stuff
 
 	@GetMapping("user/email/{email}")
@@ -185,5 +253,9 @@ public class WebController{
 
 	}
 
+	@GetMapping("standup/{date}/{teamName}")
+	public Standup  getStandupByDateAndTeam(@PathVariable(value = "date")  @DateTimeFormat(iso = ISO.DATE_TIME) Date date, @PathVariable(value = "teamName") String teamName){
+		return standupRepository.findByDateAndTeam_TeamName(date, teamName).get();
+	}
 	
 }

@@ -1,7 +1,6 @@
 package com.g1.standupapp.models;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.*;
@@ -27,12 +26,7 @@ public class Standup{
         cascade = CascadeType.ALL,
         orphanRemoval = true
     )
-    Set<StandupEntry> standups;
-	public void setStandupID(Long standupID) {
-        this.standupID = standupID;
-    }
-    
-    //Getters and Setters
+    private Set<StandupEntry> standups;
 
     public Long getStandupID() {
         return this.standupID;
