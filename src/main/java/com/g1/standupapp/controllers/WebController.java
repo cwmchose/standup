@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.security.Principal;
 
 import javax.validation.Valid;
 
@@ -19,11 +20,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 
+
 @RestController
-@RequestMapping("/web")
 public class WebController{
 
 	@Autowired
@@ -43,9 +46,16 @@ public class WebController{
     	return userRepository.findAll();
 	}
 
+	@RequestMapping(value = "/username", method = RequestMethod.GET)
+    @ResponseBody
+    public String currentUserName(Principal principal) {
+		System.out.println(principal);
+        return principal.getName();
+    }
+
 	@PostMapping("/user")
 	public User saveUser(@Valid @RequestBody User user) {
-    return userRepository.save(user);
+    	return userRepository.save(user);
 	}
 
 	@GetMapping("/fillmewithyourtestdata")
@@ -88,6 +98,14 @@ public class WebController{
 	public User getUserById(@PathVariable(value = "id") Long userId) {
 		return userRepository.findById(userId).get();
 	}
+
+   	@RequestMapping("/test")
+	@ResponseBody
+    public String test(String name, Model model) {
+		System.out.println("swell");
+		
+        return "swell";
+    } 
 
 	@PutMapping("/user/{id}")
 	public User updateUser(@PathVariable(value = "id") Long userId, @Valid @RequestBody User userDetails) {
