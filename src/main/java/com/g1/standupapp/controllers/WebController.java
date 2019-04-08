@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 
-
 @RestController
 public class WebController{
 
@@ -43,6 +42,15 @@ public class WebController{
 
 	@Autowired
 	StandupRepository standupRepository;
+
+	@RequestMapping("/test")
+	@ResponseBody
+    public String test(String name, Model model) {
+		System.out.println("swell");
+		
+        return "swell";
+    } 
+
 
 	@GetMapping("/user")
 	public List<User> getAllUsers() {
@@ -99,16 +107,12 @@ public class WebController{
 
 	@GetMapping("/user/id/{id}")
 	public User getUserById(@PathVariable(value = "id") Long userId) {
-		return userRepository.findById(userId).get();
+		if(userRepository.findById(userId).isPresent())
+			return userRepository.findById(userId).get();
+		else
+			return null;
+			
 	}
-
-   	@RequestMapping("/test")
-	@ResponseBody
-    public String test(String name, Model model) {
-		System.out.println("swell");
-		
-        return "swell";
-    } 
 
 	@PutMapping("/user/{id}")
 	public User updateUser(@PathVariable(value = "id") Long userId, @Valid @RequestBody User userDetails) {
@@ -140,12 +144,14 @@ public class WebController{
 
 	@PostMapping("/team")
 	public Team saveTeam(@Valid @RequestBody Team team) {
-    return teamRepository.save(team);
+    	return teamRepository.save(team);
 }
 
 	@GetMapping("/team/{id}")
 	public Team getTeamById(@PathVariable(value = "id") Long teamId) {
-		return teamRepository.findById(teamId).get();
+		if(teamRepository.findById(teamId).isPresent())
+			return teamRepository.findById(teamId).get();
+		return null;
 	}
 
 	@PutMapping("team/{id}")
@@ -182,7 +188,10 @@ public class WebController{
 
 	@GetMapping("/entry/{id}")
 	public StandupEntry getStandupEntryById(@PathVariable(value = "id") Long standupEntryId) {
-		return standupEntryRepository.findById(standupEntryId).get();
+		if(standupEntryRepository.findById(standupEntryId).isPresent())
+			return standupEntryRepository.findById(standupEntryId).get();
+		else
+			return null;
 	}
 
 	@PutMapping("entry/{id}")
@@ -220,7 +229,10 @@ public class WebController{
 
 	@GetMapping("/standup/{id}")
 	public Standup getStandupById(@PathVariable(value = "id") Long standupId) {
-		return standupRepository.findById(standupId).get();
+		if(standupRepository.findById(standupId).isPresent())
+			return standupRepository.findById(standupId).get();
+		else
+			return null;
 	}
 
 	@PutMapping("standup/{id}")
