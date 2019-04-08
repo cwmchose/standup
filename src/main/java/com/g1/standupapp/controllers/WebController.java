@@ -1,10 +1,12 @@
 package com.g1.standupapp.controllers;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.security.Principal;
+import java.time.LocalDate;
 
 import javax.validation.Valid;
 
@@ -13,6 +15,7 @@ import com.g1.standupapp.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -61,37 +64,37 @@ public class WebController{
 	@GetMapping("/fillmewithyourtestdata")
 	public void dummyUser() {
 		User dummy = new User();
-		dummy.setFirstName("Dummy");
-		dummy.setLastName("User");
-		dummy.setEmail("dummy@gmail.com");
+		dummy.setFirstName("Coleman");
+		dummy.setLastName("McHose");
+		dummy.setEmail("cole.mchose@gmail.com");
 		dummy.setTeams(new HashSet<>());
 		userRepository.save(dummy);
 
 		Team dummyTeam = new Team();
-		dummyTeam.setScrumMasterEmail("dummy@gmail.com");
+		dummyTeam.setScrumMasterEmail("cole.mchose@gmail.com");
 		dummyTeam.setTeamName("Alpha Team");
 		Set<User> userSet = new HashSet<User>();
 		userSet.add(dummy);
 		dummyTeam.setUsers(userSet);
 		teamRepository.save(dummyTeam);
 
-
-		StandupEntry standupEntry = new StandupEntry();
-		standupEntry.setDate(new Date());
-		standupEntry.setTeam(dummyTeam);
-		standupEntry.setUser(dummy);
-		standupEntryRepository.save(standupEntry);
-
 		Standup standup = new Standup();
-		standup.setDate(new Date());
+		LocalDate localDate = LocalDate.now();
+		standup.setDate(localDate);
 		standup.setTeam(dummyTeam);
 		Set<StandupEntry> standupSet = new HashSet<StandupEntry>();
-		standupSet.add(standupEntry);
 		standup.setStandups(standupSet);
-		
 		standupRepository.save(standup);
 
-
+		StandupEntry standupEntry = new StandupEntry();
+		standupEntry.setDate(localDate);
+		standupEntry.setTeam(dummyTeam);
+		standupEntry.setUser(dummy);
+		String str = "I want to to die";
+		standupEntry.setData(str);
+		standupEntry.setStandup(standup);
+		standupEntryRepository.save(standupEntry);
+	
 		}
 
 	@GetMapping("/user/id/{id}")
@@ -206,8 +209,8 @@ public class WebController{
 	}
 
 	@GetMapping("/standup")
-	public List<StandupEntry> getAllStandups() {
-    	return standupEntryRepository.findAll();
+	public List<Standup> getAllStandups() {
+    	return standupRepository.findAll();
 	}
 
 	@PostMapping("/standup")
@@ -271,9 +274,28 @@ public class WebController{
 
 	}
 
-	@GetMapping("standup/{date}/{teamName}")
-	public Standup  getStandupByDateAndTeam(@PathVariable(value = "date")  @DateTimeFormat(iso = ISO.DATE_TIME) Date date, @PathVariable(value = "teamName") String teamName){
+	//yyyy-mm-dd
+	@GetMapping("standup/{date}/team/{teamName}")
+	public Standup  getStandupByDateAndTeam(@PathVariable(value = "date")  @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate date, @PathVariable(value = "teamName") String teamName){
 		return standupRepository.findByDateAndTeam_TeamName(date, teamName).get();
+	}
+
+	@GetMapping("entry/{date}/{email}")
+	public List<StandupEntry> getStandupEntryByDateAndEmail(@PathVariable(value = "date")  @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate date, @PathVariable(value = "email") String email){
+		return standupEntryRepository.findByDateAndUser_Email(date, email);
+	}
+
+	@GetMapping("standup/{date}/email/{email}")
+	public List<Standup> getStandupByDateAndEmail(@PathVariable(value = "date")  @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate date, @PathVariable(value = "email") String email){
+		User user = userRepository.findByEmail(email).get();
+		Set<Team> teams = user.getTeams();
+		List<Standup> list = new ArrayList<Standup>();
+		for(Team t: teams){
+			if(standupRepository.findByDateAndTeam_TeamName(date, t.getTeamName()).isPresent()){
+				list.add(standupRepository.findByDateAndTeam_TeamName(date, t.getTeamName()).get());
+			}
+		}
+		return list;
 	}
 	
 }

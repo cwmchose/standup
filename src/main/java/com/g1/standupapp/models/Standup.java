@@ -1,9 +1,12 @@
 package com.g1.standupapp.models;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Set;
 
 import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name ="Standup", uniqueConstraints = {@UniqueConstraint(columnNames = {"date","team_id"})})
@@ -19,13 +22,13 @@ public class Standup{
     private Team team;
 
     @Column(name = "date", nullable = false)
-    private Date date;
+    private LocalDate date;
 
     @OneToMany(
         mappedBy = "standup",
-        cascade = CascadeType.ALL,
-        orphanRemoval = true
+        cascade = CascadeType.ALL
     )
+    @JsonManagedReference
     private Set<StandupEntry> standups;
 
     public Long getStandupID() {
@@ -48,11 +51,11 @@ public class Standup{
         this.team = team;
     }
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
     

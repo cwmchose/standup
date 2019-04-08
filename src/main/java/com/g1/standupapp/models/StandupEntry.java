@@ -1,8 +1,11 @@
 package com.g1.standupapp.models;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name ="Standup_Entry", uniqueConstraints = {@UniqueConstraint(columnNames = {"date","team_id","user_id"})})
@@ -18,10 +21,11 @@ public class StandupEntry{
     private Team team;
 
     @Column(name = "date", nullable = false)
-    private Date date;
+    private LocalDate date;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "standup_id")
+    @JsonBackReference
     private Standup standup;
 
     @ManyToOne
@@ -29,7 +33,7 @@ public class StandupEntry{
     private User user;
 
     @Column(name = "data")
-    private byte[] data;
+    private String data;
 
     public Long getStandupEntryID() {
         return this.standupEntryID;
@@ -59,19 +63,19 @@ public class StandupEntry{
         this.team = team;
     }
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 
-    public byte[] getData() {
+    public String getData() {
         return data;
     }
 
-    public void setData(byte[] data) {
+    public void setData(String data) {
         this.data = data;
     }
     
