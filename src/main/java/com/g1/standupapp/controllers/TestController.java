@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class TestController {
 
 
-/*
-   	@RequestMapping("/greeting")
-    public String greeting(@RequestParam(name="name", required=false, defaultValue="World") String name, Model model) {
-        model.addAttribute("name", name);
-        return "greeting";
+
+   	@GetMapping("/greeting")
+    public String greeting(Model model) {
+		System.out.println("swell");	
+        return "test";
     } 
-*/
+
 }
