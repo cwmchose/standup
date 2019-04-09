@@ -1,0 +1,17 @@
+{
+  "parserOptions": {
+    "ecmaVersion": 7,
+    "sourceType": "script"
+  },
+  "extends": ["google"],
+  "env": {
+    "node": true
+  },
+  "rules": {
+    "func-style" : "off",
+    "no-tabs" : "off",
+    "no-mixed-spaces-and-tabs" : "off",
+    "indent" : "off",
+	"max-len" : "off"
+  }
+}
