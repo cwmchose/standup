@@ -6,6 +6,7 @@ import java.util.Date;
 import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name ="Standup_Entry", uniqueConstraints = {@UniqueConstraint(columnNames = {"date","team_id","user_id"})})
@@ -16,8 +17,10 @@ public class StandupEntry{
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long standupEntryID;
 
+
     @ManyToOne
     @JoinColumn(name = "team_id")
+    @JsonIgnore
     private Team team;
 
     @Column(name = "date", nullable = false)
@@ -32,8 +35,14 @@ public class StandupEntry{
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name = "data")
-    private String data;
+    @Column(name = "today_text")
+    private String todayText;
+
+    @Column(name = "tomorrow_text")
+    private String tomorrowText;;
+
+    @Column(name = "blocking_text")
+    private String blockingText;
 
     public Long getStandupEntryID() {
         return this.standupEntryID;
@@ -71,12 +80,28 @@ public class StandupEntry{
         this.date = date;
     }
 
-    public String getData() {
-        return data;
+    public String getTodayText() {
+        return this.todayText;
     }
 
-    public void setData(String data) {
-        this.data = data;
+    public void setTodayText(String todayText) {
+        this.todayText = todayText;
+    }
+
+    public String getTomorrowText() {
+        return this.tomorrowText;
+    }
+
+    public void setTomorrowText(String tomorrowText) {
+        this.tomorrowText = tomorrowText;
+    }
+
+    public String getBlockingText() {
+        return this.blockingText;
+    }
+
+    public void setBlockingText(String blockingText) {
+        this.blockingText = blockingText;
     }
     
 }

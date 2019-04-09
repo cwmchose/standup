@@ -71,18 +71,32 @@ public class WebController{
 
 	@GetMapping("/fillmewithyourtestdata")
 	public void dummyUser() {
-		User dummy = new User();
-		dummy.setFirstName("Coleman");
-		dummy.setLastName("McHose");
-		dummy.setEmail("cole.mchose@gmail.com");
-		dummy.setTeams(new HashSet<>());
-		userRepository.save(dummy);
+		
+		User dummy1 = new User();
+		dummy1.setFirstName("Coleman");
+		dummy1.setLastName("McHose");
+		dummy1.setEmail("cole.mchose@gmail.com");
+		dummy1.setTeams(new HashSet<>());
+		userRepository.save(dummy1);
 
 		Team dummyTeam = new Team();
 		dummyTeam.setScrumMasterEmail("cole.mchose@gmail.com");
 		dummyTeam.setTeamName("Alpha Team");
 		Set<User> userSet = new HashSet<User>();
-		userSet.add(dummy);
+		userSet.add(dummy1);
+
+
+		for(int i = 0; i<5; i++){
+			User dummy2 = new User();
+			dummy2.setFirstName("First"+i);
+			dummy2.setLastName("Last"+i);
+			dummy2.setEmail("First"+i+".Last"+i+"@gmail.com");
+			dummy2.setTeams(new HashSet<>());
+			userRepository.save(dummy2);
+			userSet.add(dummy2);
+		}
+		
+
 		dummyTeam.setUsers(userSet);
 		teamRepository.save(dummyTeam);
 
@@ -94,15 +108,19 @@ public class WebController{
 		standup.setStandups(standupSet);
 		standupRepository.save(standup);
 
-		StandupEntry standupEntry = new StandupEntry();
-		standupEntry.setDate(localDate);
-		standupEntry.setTeam(dummyTeam);
-		standupEntry.setUser(dummy);
-		String str = "I want to to die";
-		standupEntry.setData(str);
-		standupEntry.setStandup(standup);
-		standupEntryRepository.save(standupEntry);
-	
+		for(User user: userSet){
+			StandupEntry standupEntry = new StandupEntry();
+			standupEntry.setDate(localDate);
+			standupEntry.setTeam(dummyTeam);
+			standupEntry.setUser(user);
+			String str = "I want to die";
+			standupEntry.setTodayText(str);
+			standupEntry.setTomorrowText(str);
+			standupEntry.setBlockingText(str);
+			standupEntry.setStandup(standup);
+			standupEntryRepository.save(standupEntry);
+		}
+
 		}
 
 	@GetMapping("/user/id/{id}")
@@ -201,7 +219,9 @@ public class WebController{
 
 		standupEntry.setUser(standupEntryDetails.getUser());
 		standupEntry.setTeam(standupEntryDetails.getTeam());
-		standupEntry.setData(standupEntryDetails.getData());
+		standupEntry.setTodayText(standupEntryDetails.getTodayText());
+		standupEntry.setTomorrowText(standupEntryDetails.getTomorrowText());
+		standupEntry.setBlockingText(standupEntryDetails.getBlockingText());
 		standupEntry.setDate(standupEntryDetails.getDate());
 
 		StandupEntry updatedStandupEntry = standupEntryRepository.save(standupEntry);
@@ -308,6 +328,11 @@ public class WebController{
 			}
 		}
 		return list;
+	}
+
+	@GetMapping("team/user/{email}")
+	public List<Team> getTeamsByUser(@PathVariable(value = "email") String email){
+		return teamRepository.findByUsers_Email(email);
 	}
 	
 }
