@@ -15,6 +15,7 @@ import com.g1.standupapp.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +29,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 
-@RestController
+@Controller
+// @RequestMapping("/web")
 public class WebController{
 
 	@Autowired
@@ -50,7 +52,6 @@ public class WebController{
 		
         return "swell";
     } 
-
 
 	@GetMapping("/user")
 	public List<User> getAllUsers() {
@@ -163,7 +164,7 @@ public class WebController{
 	@PostMapping("/team")
 	public Team saveTeam(@Valid @RequestBody Team team) {
     	return teamRepository.save(team);
-}
+	}
 
 	@GetMapping("/team/{id}")
 	public Team getTeamById(@PathVariable(value = "id") Long teamId) {
@@ -334,5 +335,10 @@ public class WebController{
 	public List<Team> getTeamsByUser(@PathVariable(value = "email") String email){
 		return teamRepository.findByUsers_Email(email);
 	}
-	
+
+	@GetMapping("/userList")
+	public String userList(Model model, Principal principal){
+		model.addAttribute("users",userRepository.findAll());
+		return "userList";
+	}
 }

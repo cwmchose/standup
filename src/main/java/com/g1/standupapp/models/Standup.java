@@ -28,7 +28,6 @@ public class Standup{
         mappedBy = "standup",
         cascade = CascadeType.ALL
     )
-    @JsonManagedReference
     private Set<StandupEntry> standups;
 
     public Long getStandupID() {

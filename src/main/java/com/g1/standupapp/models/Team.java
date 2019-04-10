@@ -23,7 +23,6 @@ public class Team{
     private String scrumMasterEmail;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
-    @JsonManagedReference
     @JoinTable(
         name = "Team_Members",
         joinColumns = { @JoinColumn(name = "team_id") },
