@@ -15,7 +15,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
         protected void configure(HttpSecurity http) throws Exception {
             http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/**")
-                .permitAll();
+                .antMatchers("/web/**").authenticated().and().oauth2Login();
         }
     } 

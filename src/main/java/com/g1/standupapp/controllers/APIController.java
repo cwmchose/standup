@@ -31,8 +31,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 @Controller
-@RequestMapping("/web")
-public class WebController{
+@RequestMapping("/api")
+public class APIController{
 
 	@Autowired
 	UserRepository userRepository;
@@ -46,7 +46,7 @@ public class WebController{
 	@Autowired
 	StandupRepository standupRepository;
 
-	@RequestMapping("/test")
+	@RequestMapping(value = "/test", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
 	@ResponseBody
     public String test(String name, Model model) {
 		System.out.println("swell");
@@ -337,7 +337,7 @@ public class WebController{
 
 	}
 
-	@RequestMapping(value = "user/{email}/add/{teamName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "user/{email}/remove/{teamName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public User deleteUserFromTeam(@PathVariable(value = "email") String email, @PathVariable(value = "teamName") String teamName){
 		User user = getUserByEmail(email);
@@ -349,7 +349,6 @@ public class WebController{
 
 	}
 
-	//yyyy-mm-dd
 	@RequestMapping(value = "standup/{date}/team/{teamName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Standup  getStandupByDateAndTeam(@PathVariable(value = "date")  @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate date, @PathVariable(value = "teamName") String teamName){
@@ -383,9 +382,4 @@ public class WebController{
 		return teamRepository.findByUsers_Email(email);
 	}
 
-	@GetMapping("/userList")
-	public String userList(Model model, Principal principal){
-		model.addAttribute("users",userRepository.findAll());
-		return "userList";
-	}
 }
