@@ -6,9 +6,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
-    // @EnableOAuth2Sso
-    @Configuration
-    // @Order(1)                                                        
+    @Configuration                                                    
     public class WebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
 
         @Override
