@@ -16,11 +16,13 @@
 const askForSignIn = require('./intents/ask-for-sign-in');
 const create = require('./intents/create');
 const playback = require('./intents/playback');
+const startUp = require('./intents/startup');
+const post = require('./intents/post-test');
+const fallback = require('./intents/fallback');
 
 const CLIENT_ID = '836393444189-8m0pe63bmej74vn896u8iqdafic9nn1o.apps.googleusercontent.com';
 
 
-const mysql = require('mysql');
 const app = require('actions-on-google').dialogflow({
     clientId: CLIENT_ID,
 });
@@ -34,36 +36,29 @@ function addIntents(...args) {
     }
   }
 }
- 
-
-
-var connection = mysql.createConnection({
-  "host"     : "capstone-database.cannenwyruyu.us-east-2.rds.amazonaws.com",
-  "user"     : "eivillarreal",
-  "password" : "galilea03",
-  "port"     : "3306"
-});
-
-
-connection.connect(function(err) {
-  if (err) {
-    console.error('Database connection failed: ' + err.stack);
-    return;
-  }
-
-  console.log('Connected to database.');
-});
-
-app.db = connection;
 
 addIntents(
   askForSignIn,
+	startUp,
   create,
+  fallback,
+  post,
   playback
 );
 
+app.middleware((conv) => {
+  conv.hasScreen =
+    conv.surface.capabilities.has('actions.capability.SCREEN_OUTPUT');
+  conv.hasAudioPlayback =
+    conv.surface.capabilities.has('actions.capability.AUDIO_OUTPUT');
+  conv.hasWebBrowser =
+    conv.surface.capabilities.has('actions.capability.WEB_BROWSER');
+});
+/*
 app.intent('Default Welcome Intent', (conv) => {
   conv.ask('Welcome to Stand Up, you can create a stand up or playback previous ones.');
 });
+*/
+console.log('exported app');
 
 module.exports = app;
