@@ -177,8 +177,28 @@ public class WebController{
 	@RequestMapping(value = "/entry", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public StandupEntry saveStandupEntry(@Valid @RequestBody StandupEntry standupEntry) {
-    return standupEntryRepository.save(standupEntry);
-}
+		standupEntryRepository.save(standupEntry);
+		if(!standupEntryRepository.findByDateAndTeam_TeamNameAndUser_Email(standupEntry.getDate(), standupEntry.getTeam().getTeamName(), standupEntry.getUser().getEmail()).isPresent()){
+			if(standupRepository.findByDateAndTeam_TeamName(standupEntry.getDate(),standupEntry.getTeam().getTeamName()).isPresent()){
+				Standup standup = standupRepository.findByDateAndTeam_TeamName(standupEntry.getDate(),standupEntry.getTeam().getTeamName()).get();
+				Set <StandupEntry> entrySet = standup.getStandups();
+				entrySet.add(standupEntry);
+				standupRepository.save(standup);
+			}
+			else{
+				Standup standup = new Standup();
+				standup.setDate(standupEntry.getDate());
+				standup.setTeam(standupEntry.getTeam());
+				Set <StandupEntry> entrySet = new HashSet<>();
+				entrySet.add(standupEntry);
+				standup.setStandups(entrySet);
+				standupRepository.save(standup);
+			}
+			return standupEntry;
+		}
+		else
+			return null;
+	}
 
 	@RequestMapping(value = "/entry/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
@@ -189,7 +209,7 @@ public class WebController{
 			return null;
 	}
 
-	@RequestMapping(value = "/entry/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/entry/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public StandupEntry updateStandupEntry(@PathVariable(value = "id") Long standupEntryId, @Valid @RequestBody StandupEntry standupEntryDetails) {
 
@@ -328,38 +348,58 @@ public class WebController{
 	@RequestMapping(value = "user/email/{email}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public User getUserByEmail(@PathVariable(value = "email") String email){
-		return userRepository.findByEmail(email).get();
+		if(userRepository.findByEmail(email).isPresent())
+			return userRepository.findByEmail(email).get();
+		else
+			return null;
 	}
 
-	@RequestMapping(value = "user/{email}/add/{teamName}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "user/{email}/add/{teamName}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public User addUserToTeam(@PathVariable(value = "email") String email, @PathVariable(value = "teamName") String teamName){
+	public Team addUserToTeam(@PathVariable(value = "email") String email, @PathVariable(value = "teamName") String teamName){
 		User user = getUserByEmail(email);
-		Set<Team> teams = user.getTeams();
-		teams.add(teamRepository.findByTeamName(teamName).get());
-		user.setTeams(teams);
-		userRepository.save(user);
-		return user;
-
+		if(user != null){
+			if(teamRepository.findByTeamName(teamName).isPresent()){
+				Team team = teamRepository.findByTeamName(teamName).get();
+				Set<User> users = team.getUsers();
+				users.add(user);
+				team.setUsers(users);
+				teamRepository.save(team);
+				return team;
+			}
+			else
+				return null;
+		}
+		return null;
 	}
 
 	@RequestMapping(value = "user/{email}/add/{teamName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public User deleteUserFromTeam(@PathVariable(value = "email") String email, @PathVariable(value = "teamName") String teamName){
 		User user = getUserByEmail(email);
-		Set<Team> teams = user.getTeams();
-		teams.remove(teamRepository.findByTeamName(teamName).get());
-		user.setTeams(teams);
-		userRepository.save(user);
-		return user;
-
+		if(user != null){
+			if(teamRepository.findByTeamName(teamName).isPresent()){
+				Team team = teamRepository.findByTeamName(teamName).get();
+				Set<User> users = team.getUsers();
+				users.remove(user);
+				team.setUsers(users);
+				teamRepository.save(team);
+				return user;
+			}
+			else
+				return null;
+		}
+		return null;
 	}
 
 	//yyyy-mm-dd
 	@RequestMapping(value = "standup/{date}/team/{teamName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public Standup  getStandupByDateAndTeam(@PathVariable(value = "date")  @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate date, @PathVariable(value = "teamName") String teamName){
-		return standupRepository.findByDateAndTeam_TeamName(date, teamName).get();
+	public Standup  getStandupByDateAndTeamName(@PathVariable(value = "date")  @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate date, @PathVariable(value = "teamName") String teamName){
+		if(standupRepository.findByDateAndTeam_TeamName(date, teamName).isPresent())
+			return standupRepository.findByDateAndTeam_TeamName(date, teamName).get();
+		else
+			return null;
 	}
 
 	
@@ -389,9 +429,26 @@ public class WebController{
 		return teamRepository.findByUsers_Email(email);
 	}
 
+	// List of all users
 	@GetMapping("/userList")
 	public String userList(Model model, Principal principal){
 		model.addAttribute("users",userRepository.findAll());
 		return "userList";
+	}
+
+	// List of teams the logged in user belongs to
+	@GetMapping("/teamList")
+	public String teamList(Model model, Principal principal){
+		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
+		model.addAttribute("email", test.getPrincipal().getAttributes().get("email").toString());
+		model.addAttribute("teams", teamRepository.findByUsers_Email(test.getPrincipal().getAttributes().get("email").toString()));
+		return "teamList";
+	}
+
+	@GetMapping("/teamDetails/{teamName}")
+	public String teamDetails(Model model, Principal principal, @PathVariable(value = "teamName") String teamName){
+		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
+		model.addAttribute("team", teamRepository.findByTeamName(teamName).get());
+		return "teamDetails";
 	}
 }

@@ -2,7 +2,9 @@ package com.g1.standupapp.controllers;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 import java.security.Principal;
@@ -16,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,10 +33,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 
 @Controller
 @RequestMapping("/api")
-public class APIController{
+public class APIController {
 
 	@Autowired
 	UserRepository userRepository;
@@ -46,7 +52,7 @@ public class APIController{
 	@Autowired
 	StandupRepository standupRepository;
 
-	@RequestMapping(value = "/test", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
+	@RequestMapping("/test")
 	@ResponseBody
     public String test(String name, Model model) {
 		System.out.println("swell");
@@ -54,11 +60,11 @@ public class APIController{
         return "swell";
     } 
 
-	@RequestMapping(value = "/username", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/principal", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public String currentUserName(Principal principal) {
-		System.out.println(principal);
-        return principal.getName();
+		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
+    	return test.getPrincipal().getAttributes().get("email").toString();
 	}
 	
 
@@ -171,8 +177,28 @@ public class APIController{
 	@RequestMapping(value = "/entry", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public StandupEntry saveStandupEntry(@Valid @RequestBody StandupEntry standupEntry) {
-    return standupEntryRepository.save(standupEntry);
-}
+		standupEntryRepository.save(standupEntry);
+		if(!standupEntryRepository.findByDateAndTeam_TeamNameAndUser_Email(standupEntry.getDate(), standupEntry.getTeam().getTeamName(), standupEntry.getUser().getEmail()).isPresent()){
+			if(standupRepository.findByDateAndTeam_TeamName(standupEntry.getDate(),standupEntry.getTeam().getTeamName()).isPresent()){
+				Standup standup = standupRepository.findByDateAndTeam_TeamName(standupEntry.getDate(),standupEntry.getTeam().getTeamName()).get();
+				Set <StandupEntry> entrySet = standup.getStandups();
+				entrySet.add(standupEntry);
+				standupRepository.save(standup);
+			}
+			else{
+				Standup standup = new Standup();
+				standup.setDate(standupEntry.getDate());
+				standup.setTeam(standupEntry.getTeam());
+				Set <StandupEntry> entrySet = new HashSet<>();
+				entrySet.add(standupEntry);
+				standup.setStandups(entrySet);
+				standupRepository.save(standup);
+			}
+			return standupEntry;
+		}
+		else
+			return null;
+	}
 
 	@RequestMapping(value = "/entry/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
@@ -183,7 +209,7 @@ public class APIController{
 			return null;
 	}
 
-	@RequestMapping(value = "/entry/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/entry/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public StandupEntry updateStandupEntry(@PathVariable(value = "id") Long standupEntryId, @Valid @RequestBody StandupEntry standupEntryDetails) {
 
@@ -322,37 +348,58 @@ public class APIController{
 	@RequestMapping(value = "user/email/{email}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public User getUserByEmail(@PathVariable(value = "email") String email){
-		return userRepository.findByEmail(email).get();
+		if(userRepository.findByEmail(email).isPresent())
+			return userRepository.findByEmail(email).get();
+		else
+			return null;
 	}
 
-	@RequestMapping(value = "user/{email}/add/{teamName}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "user/{email}/add/{teamName}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public User addUserToTeam(@PathVariable(value = "email") String email, @PathVariable(value = "teamName") String teamName){
+	public Team addUserToTeam(@PathVariable(value = "email") String email, @PathVariable(value = "teamName") String teamName){
 		User user = getUserByEmail(email);
-		Set<Team> teams = user.getTeams();
-		teams.add(teamRepository.findByTeamName(teamName).get());
-		user.setTeams(teams);
-		userRepository.save(user);
-		return user;
-
+		if(user != null){
+			if(teamRepository.findByTeamName(teamName).isPresent()){
+				Team team = teamRepository.findByTeamName(teamName).get();
+				Set<User> users = team.getUsers();
+				users.add(user);
+				team.setUsers(users);
+				teamRepository.save(team);
+				return team;
+			}
+			else
+				return null;
+		}
+		return null;
 	}
 
-	@RequestMapping(value = "user/{email}/remove/{teamName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "user/{email}/add/{teamName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public User deleteUserFromTeam(@PathVariable(value = "email") String email, @PathVariable(value = "teamName") String teamName){
 		User user = getUserByEmail(email);
-		Set<Team> teams = user.getTeams();
-		teams.remove(teamRepository.findByTeamName(teamName).get());
-		user.setTeams(teams);
-		userRepository.save(user);
-		return user;
-
+		if(user != null){
+			if(teamRepository.findByTeamName(teamName).isPresent()){
+				Team team = teamRepository.findByTeamName(teamName).get();
+				Set<User> users = team.getUsers();
+				users.remove(user);
+				team.setUsers(users);
+				teamRepository.save(team);
+				return user;
+			}
+			else
+				return null;
+		}
+		return null;
 	}
 
+	//yyyy-mm-dd
 	@RequestMapping(value = "standup/{date}/team/{teamName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public Standup  getStandupByDateAndTeam(@PathVariable(value = "date")  @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate date, @PathVariable(value = "teamName") String teamName){
-		return standupRepository.findByDateAndTeam_TeamName(date, teamName).get();
+	public Standup  getStandupByDateAndTeamName(@PathVariable(value = "date")  @DateTimeFormat(pattern="yyyy-MM-dd") LocalDate date, @PathVariable(value = "teamName") String teamName){
+		if(standupRepository.findByDateAndTeam_TeamName(date, teamName).isPresent())
+			return standupRepository.findByDateAndTeam_TeamName(date, teamName).get();
+		else
+			return null;
 	}
 
 	
@@ -381,5 +428,4 @@ public class APIController{
 	public List<Team> getTeamsByUser(@PathVariable(value = "email") String email){
 		return teamRepository.findByUsers_Email(email);
 	}
-
 }
