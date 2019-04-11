@@ -37,8 +37,8 @@ import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 
 @Controller
-@RequestMapping("/web")
-public class WebController{
+@RequestMapping("/api")
+public class APIController {
 
 	@Autowired
 	UserRepository userRepository;
@@ -427,28 +427,5 @@ public class WebController{
 	@ResponseBody
 	public List<Team> getTeamsByUser(@PathVariable(value = "email") String email){
 		return teamRepository.findByUsers_Email(email);
-	}
-
-	// List of all users
-	@GetMapping("/userList")
-	public String userList(Model model, Principal principal){
-		model.addAttribute("users",userRepository.findAll());
-		return "userList";
-	}
-
-	// List of teams the logged in user belongs to
-	@GetMapping("/teamList")
-	public String teamList(Model model, Principal principal){
-		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
-		model.addAttribute("email", test.getPrincipal().getAttributes().get("email").toString());
-		model.addAttribute("teams", teamRepository.findByUsers_Email(test.getPrincipal().getAttributes().get("email").toString()));
-		return "teamList";
-	}
-
-	@GetMapping("/teamDetails/{teamName}")
-	public String teamDetails(Model model, Principal principal, @PathVariable(value = "teamName") String teamName){
-		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
-		model.addAttribute("team", teamRepository.findByTeamName(teamName).get());
-		return "teamDetails";
 	}
 }
