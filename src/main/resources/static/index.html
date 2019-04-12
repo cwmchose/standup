@@ -4,7 +4,6 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<meta name="google-signin-client_id" content="839171694975-ngoa7hfh4fifgiq91fql9nrj7ndr157i.apps.googleusercontent.com">
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -12,10 +11,17 @@
   </head>
   <body>
 
-  <div class="g-signin2" data-onsuccess="onSignIn"></div>
+  <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+      <a class="navbar-brand" href="#">Capstone</a>
+        <div class="navbar-nav">
+          <a class="nav-item nav-link active" href="#">Home <span class="sr-only">(current)</span></a>
+          <a class="nav-item nav-link" href="/web/teamList">Teams</a>
+          <a class="nav-item nav-link" href="#">ManageTeams</a>
+          <a class="nav-item nav-link" href="#">Profile</a>
+        </div>
+    </nav>
+
   <a href="/web/userList">List of all users</a>
-  <br/>
-  <a href="/web/teamList">Teams of logged in user</a>
 
     <!-- Optional JavaScript -->
     <script src="https://apis.google.com/js/platform.js" async defer></script>

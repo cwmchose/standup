@@ -21,4 +21,6 @@ public interface StandupEntryRepository extends CrudRepository<StandupEntry,Long
     public List<StandupEntry> findByDateAndTeam_TeamName(LocalDate Date, String teamName);
 
     public List<StandupEntry> findByDateAndUser_Email(LocalDate date , String email);
+
+    public List<StandupEntry> findByUser_UserID(Long userID);
 }
