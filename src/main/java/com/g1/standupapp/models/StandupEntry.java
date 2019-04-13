@@ -20,7 +20,7 @@ public class StandupEntry{
 
     @ManyToOne
     @JoinColumn(name = "team_id")
-    @JsonIgnore
+    @JsonBackReference(value="teamReference")
     private Team team;
 
     @Column(name = "date", nullable = false)
@@ -28,7 +28,7 @@ public class StandupEntry{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "standup_id")
-    @JsonBackReference
+    @JsonBackReference(value="stamdupReference")
     private Standup standup;
 
     @ManyToOne

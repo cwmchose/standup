@@ -13,8 +13,8 @@
       <a class="navbar-brand" href="#">Capstone</a>
         <div class="navbar-nav">
           <a class="nav-item nav-link" href=/web/home>Home</a>
-          <a class="nav-item nav-link" href="/web/teamList">Teams</a>
-          <a class="nav-item nav-link active" href="/web/manageTeams">Manage Teams<span class="sr-only">(current)</span></a>
+          <a class="nav-item nav-link active" href="/web/teamList">Teams<span class="sr-only">(current)</span></a>
+          <a class="nav-item nav-link" href="/web/manageTeams">Manage Teams</a>
           <a class="nav-item nav-link" href="/web/profile">Profile</a>
         </div>
         <div class="navbar-nav ml-auto">
@@ -22,34 +22,12 @@
         </div>
   </nav>
 
-  <title>Manage Teams</title>
+  <title>Create Team</title>
   </head>
   <body class = "bg-light">
-    <p class="text-center mt-5">Select a team to manage</p>
     <div class="container">
       <div class="bg-white rounded shadow-sm p-3 mt-5 mb-5">
-        <!-- <h5 class="mx-auto d-inline-block">Managable Teams</h5>
-        <button type="button" class="btn btn-primary float-right">Create Team</button> -->
-        <!-- <div class="container"> -->
-        <div class="row justify-content-end text-center mb-1">
-            <h5 class="col-4">Managable Teams</h5>
-            <div class="col-4">
-              <button id="button" class="btn btn-primary float-right" onclick="buttonClicked()">Create Team</button>
-            </div>
-          </div>
-        <!-- </div> -->
-        <table id= "Table" class="table table-striped table-responsive-md">
-          <thead>
-              <tr>
-                  <th>Team Name</th>
-              </tr>
-          </thead>
-          <tbody>
-              <tr th:each="team : ${teams}" style="cursor: pointer" th:data-parameter1="${team.teamName}" onclick="rowClicked(this.getAttribute('data-parameter1'));">
-                  <td th:text="${team.teamName}"></td>
-              </tr>
-          </tbody>
-        </table>
+        <h5 class="text-center">Create new team</h5>
       </div>
     </div>
 
@@ -61,12 +39,27 @@
       <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
       <script src = "https://cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
       <script>
-          $(document).ready(function () {
-              $('#Table').DataTable();
-          });
+          // made a sample team, but you should be able to pull it from the html as well
+          var team = {"teamName":"Beta Team","scrumMasterEmail":"eivillarreal@mix.wvu.edu","description":"sample description","users":[]};
+          function buttonClicked(){
+            $.ajax({
 
-          function buttonClicked() {
-              location.href = "createTeam";
+                url : 'http://localhost:5000/api/team',
+                // or the beanstalk endpoint
+                type : 'POST',
+                data: JSON.stringify(team),
+                headers: {
+                        'Content-Type': 'application/json'
+                    },
+                dataType:'application/json',
+                success : function(data) {              
+                    alert('Data: '+ data);
+                },
+                error : function(request,error)
+                {
+                    alert("Request: "+JSON.stringify(request));
+                }
+            });
           }
         </script>
   </body>

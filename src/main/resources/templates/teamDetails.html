@@ -28,7 +28,7 @@
 	<div class="container">
         <div class="bg-white rounded shadow-sm p-3 mt-5 mb-5">
             <h1 class="d-inline-block" th:text="${team.teamName}"/>
-            <button type="button" class="btn btn-primary float-right">Add Entry</button>
+            <button type="button" class="btn btn-primary float-right" onclick="buttonClicked();">Add Entry</button>
             <h6 th:text="'Scrum Master: ' + ${scrumMaster}"/>
             <h6 th:text="'Details: ' + ${team.description}"/>
             
@@ -48,7 +48,43 @@
                         </table>
         </div>
 
-	</div>
+    </div>
+    
+    <div class="modal fade" id="entryModal" tabindex="-1" role="dialog" aria-labelledby="entryModalTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLongTitle">Create Standup Entry</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="todayText">Today</label>
+                            <input type="text" class="form-control" id="todayText" aria-describedby="todayHelp">
+                            <small id="todayHelp" class="form-text text-muted">What did you do today?</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="tomorrowText">Tomorrow</label>
+                            <input type="text" class="form-control" id="tomorrowText" aria-describedby="tomorrowHelp">
+                            <small id="tomorrowHelp" class="form-text text-muted">What are you going to do tomorrow?</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="blockingText">Blocking</label>
+                            <input type="text" class="form-control" id="blockingText" aria-describedby="blockingHelp">
+                            <small id="blockingHelp" class="form-text text-muted">Is there anything blocking you?</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-primary" onclick="saveEntry();">Save</button>
+                </div>
+              </div>
+            </div>
+          </div>
 
 
 
@@ -60,13 +96,42 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
     <script src = "https://cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
-    <script>
+    <script th:inline="javascript">
         $(document).ready(function () {
             $('#Table').DataTable();
         });
 
         function rowClicked(value) {
             location.href = "../standupDetails/" + value;
+        }
+        
+        function buttonClicked() {
+            $('#entryModal').modal('toggle');
+          }
+
+        function saveEntry() {
+            // pull from input
+            var user = /*[[${user}]]*/ null;
+            var date = /*[[${date}]]*/ null;
+            var team = /*[[${team}]]*/ null;
+            var entry = {"user":user, "date":date, "team":team, "todayText":$('#todayText').val(),"tomorrowText":$('#tomorrowText').val(),"blockingText":$('#blockingText').val()};
+
+            $.ajax({
+                url : 'http://localhost:5000/api/entry',
+                type : 'POST',
+                data: JSON.stringify(entry),
+                headers: {
+                        'Content-Type': 'application/json'
+                    },
+                dataType:'application/json',
+                success : function(data) {              
+                    alert('Data: '+ data);
+                },
+                error : function(request,error)
+                {
+                    alert("Request: "+JSON.stringify(request));
+                }
+            });
         }
     </script>
 </body>

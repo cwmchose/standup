@@ -493,9 +493,12 @@ public class WebController{
 		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
 		Team team = teamRepository.findByTeamName(teamName).get();
 		User scrumMaster = userRepository.findByEmail(team.getScrumMasterEmail()).get();
+		User currentUser = userRepository.findByEmail(test.getPrincipal().getAttributes().get("email").toString()).get();
 		model.addAttribute("team", team);
 		model.addAttribute("scrumMaster", scrumMaster.getFirstName() + " " + scrumMaster.getLastName());
 		model.addAttribute("standups", standupRepository.findByTeam_TeamName(teamName));
+		model.addAttribute("user", currentUser);
+		model.addAttribute("date", LocalDate.now());
 		return "teamDetails";
 	}
 
@@ -523,5 +526,15 @@ public class WebController{
 	@GetMapping("/profile")
 	public String profile(Model model, Principal principal){
 		return "profile";
+	}
+
+	@GetMapping("/createTeam")
+	public String createTeam(Model model, Principal principal){
+		return "createTeam";
+	}
+
+	@GetMapping("invites")
+	public String invites(Model model, Principal principal){
+		return "invites";
 	}
 }

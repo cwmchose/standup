@@ -59,28 +59,6 @@
           function rowClicked(value) {
               location.href = "teamDetails/" + value;
           }
-
-          // made a sample team, but you should be able to pull it from the html as well
-          var team = {"teamName":"Beta Team","scrumMasterEmail":"eivillarreal@mix.wvu.edu","description":"sample description","users":[]};
-          
-          $.ajax({
-
-            url : 'http://localhost:5000/api/team',
-            // or the beanstalk endpoint
-            type : 'POST',
-            data: JSON.stringify(team),
-            headers: {
-                    'Content-Type': 'application/json'
-                },
-            dataType:'application/json',
-            success : function(data) {              
-                alert('Data: '+ data);
-            },
-            error : function(request,error)
-            {
-                alert("Request: "+JSON.stringify(request));
-            }
-         });
         </script>
   </body>
 </html>
