@@ -352,6 +352,14 @@ public class APIController{
 		userRepository.save(ed);
 		userSet.add(ed);
 
+		User tony = new User();
+		tony.setFirstName("Tony");
+		tony.setLastName("Bag-O-Donuts");
+		tony.setEmail("ajdt703@gmail.com");
+		tony.setTeams(new HashSet<>());
+		userRepository.save(tony);
+		userSet.add(tony);
+
 		for(int i = 0; i<5; i++){
 			User dummy2 = new User();
 			dummy2.setFirstName("First"+i);

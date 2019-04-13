@@ -527,6 +527,9 @@ public class WebController{
 
 	@GetMapping("/profile")
 	public String profile(Model model, Principal principal){
+		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
+		User currentUser = userRepository.findByEmail(test.getPrincipal().getAttributes().get("email").toString()).get();
+		model.addAttribute("user", currentUser);
 		return "profile";
 	}
 
