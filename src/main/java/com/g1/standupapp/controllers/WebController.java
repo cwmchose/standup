@@ -64,7 +64,7 @@ public class WebController{
     @ResponseBody
     public String currentUserName(Principal principal) {
 		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
-    	return test.getPrincipal().getAttributes().get("email").toString();
+    	return test.getPrincipal().getAttributes().toString();
 	}
 	
 
@@ -329,19 +329,27 @@ public class WebController{
 	@ResponseBody
 	public String dummyUser() {
 		
-		User dummy1 = new User();
-		dummy1.setFirstName("Coleman");
-		dummy1.setLastName("McHose");
-		dummy1.setEmail("cole.mchose@gmail.com");
-		dummy1.setTeams(new HashSet<>());
-		userRepository.save(dummy1);
+		User cole = new User();
+		cole.setFirstName("Coleman");
+		cole.setLastName("McHose");
+		cole.setEmail("cole.mchose@gmail.com");
+		cole.setTeams(new HashSet<>());
+		userRepository.save(cole);
 
 		Team dummyTeam = new Team();
 		dummyTeam.setScrumMasterEmail("cole.mchose@gmail.com");
 		dummyTeam.setTeamName("Alpha Team");
+		dummyTeam.setDescription("Our goal is to build a working capstone.");
 		Set<User> userSet = new HashSet<User>();
-		userSet.add(dummy1);
+		userSet.add(cole);
 
+		User ed = new User();
+		ed.setFirstName("Edgar");
+		ed.setLastName("Villarreal");
+		ed.setEmail("eivillarreal@mix.wvu.edu");
+		ed.setTeams(new HashSet<>());
+		userRepository.save(ed);
+		userSet.add(ed);
 
 		for(int i = 0; i<5; i++){
 			User dummy2 = new User();
@@ -476,7 +484,6 @@ public class WebController{
 	@GetMapping("/teamList")
 	public String teamList(Model model, Principal principal){
 		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
-		model.addAttribute("email", test.getPrincipal().getAttributes().get("email").toString());
 		model.addAttribute("teams", teamRepository.findByUsers_Email(test.getPrincipal().getAttributes().get("email").toString()));
 		return "teamList";
 	}
@@ -484,17 +491,32 @@ public class WebController{
 	@GetMapping("/teamDetails/{teamName}")
 	public String teamDetails(Model model, Principal principal, @PathVariable(value = "teamName") String teamName){
 		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
-		model.addAttribute("team", teamRepository.findByTeamName(teamName).get());
+		Team team = teamRepository.findByTeamName(teamName).get();
+		User scrumMaster = userRepository.findByEmail(team.getScrumMasterEmail()).get();
+		model.addAttribute("team", team);
+		model.addAttribute("scrumMaster", scrumMaster.getFirstName() + " " + scrumMaster.getLastName());
+		model.addAttribute("standups", standupRepository.findByTeam_TeamName(teamName));
 		return "teamDetails";
+	}
+
+	@GetMapping("/standupDetails/{standupID}")
+	public String standupDetails(Model model, Principal principal, @PathVariable(value = "standupID") Long standupID){
+		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
+		model.addAttribute("standup", standupRepository.findById(standupID).get());
+		return "standupDetails";
 	}
 
 	@GetMapping("/home")
 	public String home(Model model, Principal principal){
+		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
+		model.addAttribute("name", test.getPrincipal().getAttributes().get("name").toString());
 		return "home";
 	}
 
 	@GetMapping("/manageTeams")
 	public String manageTeams(Model model, Principal principal){
+		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
+		model.addAttribute("teams", teamRepository.findByScrumMasterEmail(test.getPrincipal().getAttributes().get("email").toString()));
 		return "manageTeams";
 	}
 

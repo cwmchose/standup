@@ -64,7 +64,7 @@ public class APIController{
     @ResponseBody
     public String currentUserName(Principal principal) {
 		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
-    	return test.getPrincipal().getAttributes().get("email").toString();
+    	return test.getPrincipal().getAttributes().toString();
 	}
 	
 
@@ -329,19 +329,27 @@ public class APIController{
 	@ResponseBody
 	public String dummyUser() {
 		
-		User dummy1 = new User();
-		dummy1.setFirstName("Coleman");
-		dummy1.setLastName("McHose");
-		dummy1.setEmail("cole.mchose@gmail.com");
-		dummy1.setTeams(new HashSet<>());
-		userRepository.save(dummy1);
+		User cole = new User();
+		cole.setFirstName("Coleman");
+		cole.setLastName("McHose");
+		cole.setEmail("cole.mchose@gmail.com");
+		cole.setTeams(new HashSet<>());
+		userRepository.save(cole);
 
 		Team dummyTeam = new Team();
 		dummyTeam.setScrumMasterEmail("cole.mchose@gmail.com");
 		dummyTeam.setTeamName("Alpha Team");
+		dummyTeam.setDescription("Our goal is to build a working capstone.");
 		Set<User> userSet = new HashSet<User>();
-		userSet.add(dummy1);
+		userSet.add(cole);
 
+		User ed = new User();
+		ed.setFirstName("Edgar");
+		ed.setLastName("Villarreal");
+		ed.setEmail("eivillarreal@mix.wvu.edu");
+		ed.setTeams(new HashSet<>());
+		userRepository.save(ed);
+		userSet.add(ed);
 
 		for(int i = 0; i<5; i++){
 			User dummy2 = new User();
