@@ -519,7 +519,9 @@ public class WebController{
 	@GetMapping("/manageTeams")
 	public String manageTeams(Model model, Principal principal){
 		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
+		User currentUser = userRepository.findByEmail(test.getPrincipal().getAttributes().get("email").toString()).get();
 		model.addAttribute("teams", teamRepository.findByScrumMasterEmail(test.getPrincipal().getAttributes().get("email").toString()));
+		model.addAttribute("user", currentUser);
 		return "manageTeams";
 	}
 

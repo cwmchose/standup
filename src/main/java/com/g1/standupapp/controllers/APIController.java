@@ -16,6 +16,7 @@ import com.g1.standupapp.repositories.*;
 import com.g1.standupapp.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -202,7 +203,7 @@ public class APIController{
 
 	@RequestMapping(value = "/entry", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public StandupEntry saveStandupEntry(@Valid @RequestBody StandupEntry standupEntry) {
+	public ResponseEntity<Object> saveStandupEntry(@Valid @RequestBody StandupEntry standupEntry) {
 		if(!standupEntryRepository.findByDateAndTeam_TeamNameAndUser_Email(standupEntry.getDate(), standupEntry.getTeam().getTeamName(), standupEntry.getUser().getEmail()).isPresent()){
 			standupEntryRepository.save(standupEntry);
 			if(standupRepository.findByDateAndTeam_TeamName(standupEntry.getDate(),standupEntry.getTeam().getTeamName()).isPresent()){	
@@ -220,10 +221,10 @@ public class APIController{
 				standup.setStandups(entrySet);
 				standupRepository.save(standup);
 			}
-			return standupEntry;
+			return ResponseEntity.ok().build();
 		}
 		else
-			return null;
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("An entry for this date already exists");
 	}
 
 	@RequestMapping(value = "/entry/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

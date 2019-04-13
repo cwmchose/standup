@@ -28,7 +28,7 @@ public class StandupEntry{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "standup_id")
-    @JsonBackReference(value="stamdupReference")
+    @JsonBackReference(value="standupReference")
     private Standup standup;
 
     @ManyToOne
