@@ -9,19 +9,28 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
   </head>
-  <body>
+  <body class = "bg-light">
 
   <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
       <a class="navbar-brand" href="#">Capstone</a>
         <div class="navbar-nav">
-          <a class="nav-item nav-link active" href="#">Home <span class="sr-only">(current)</span></a>
+          <a class="nav-item nav-link active" href="/web/home">Home <span class="sr-only">(current)</span></a>
           <a class="nav-item nav-link" href="/web/teamList">Teams</a>
-          <a class="nav-item nav-link" href="#">ManageTeams</a>
-          <a class="nav-item nav-link" href="#">Profile</a>
+          <a class="nav-item nav-link" href="/web/manageTeams">Manage Teams</a>
+          <a class="nav-item nav-link" href="/web/profile">Profile</a>
+        </div>
+        <div class="navbar-nav ml-auto">
+                <a class="nav-item nav-link mr-auto" href="/web/invites">Invites</a>
         </div>
     </nav>
 
-  <a href="/web/userList">List of all users</a>
+  <div>
+      <h3 class = "text-center mt-3" th:text="'Hello ' + ${name}"/>
+      <h3 class = "text-center mt-3">
+        Welcome to the your homepage!
+      </h3>
+  </div>
+  <!-- <a href="/web/userList">List of all users</a> -->
 
     <!-- Optional JavaScript -->
     <script src="https://apis.google.com/js/platform.js" async defer></script>

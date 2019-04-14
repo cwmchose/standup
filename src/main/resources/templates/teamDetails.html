@@ -7,23 +7,132 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
     <title>Team Details</title>
   </head>
-  <body>
+  <body class = "bg-light">
 
-	<div class="details">
+    <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">Capstone</a>
+            <div class="navbar-nav">
+            <a class="nav-item nav-link" href=/web/home>Home</a>
+            <a class="nav-item nav-link active" href="/web/teamList">Teams<span class="sr-only">(current)</span></a>
+            <a class="nav-item nav-link" href="/web/manageTeams">Manage Teams</a>
+            <a class="nav-item nav-link" href="/web/profile">Profile</a> 
+            </div>
+            <div class="navbar-nav ml-auto">
+                <a class="nav-item nav-link mr-auto" href="/web/invites">Invites</a>
+            </div>
+    </nav>
 
-        <span th:text="'Team Name = ' + ${team.teamName}" />
-        <br/>
-        <span th:text="'Email = ' + ${team.scrumMasterEmail}" />
-	</div>
+	<div class="container">
+        <div class="bg-white rounded shadow-sm p-3 mt-5 mb-5">
+            <h1 class="d-inline-block" th:text="${team.teamName}"/>
+            <button type="button" class="btn btn-primary float-right" onclick="buttonClicked();">Add Entry</button>
+            <h6 th:text="'Scrum Master: ' + ${scrumMaster}"/>
+            <h6 th:text="'Details: ' + ${team.description}"/>
+            
+        </div>
+        <div class="bg-white rounded shadow-sm p-3 mt-5 mb-5">
+                <table id="Table" class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th th:text="Date"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="standup : ${standups}" style="cursor: pointer" th:data-parameter1="${standup.standupID}" onclick="rowClicked(this.getAttribute('data-parameter1'));">
+                                <td th:text="${standup.date}"></td>
+                            </tr>
+                        </tbody>
+                        </table>
+        </div>
+
+    </div>
+    
+    <div class="modal fade" id="entryModal" tabindex="-1" role="dialog" aria-labelledby="entryModalTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLongTitle">Create Standup Entry</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="todayText">Today</label>
+                            <input type="text" class="form-control" id="todayText" aria-describedby="todayHelp">
+                            <small id="todayHelp" class="form-text text-muted">What did you do today?</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="tomorrowText">Tomorrow</label>
+                            <input type="text" class="form-control" id="tomorrowText" aria-describedby="tomorrowHelp">
+                            <small id="tomorrowHelp" class="form-text text-muted">What are you going to do tomorrow?</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="blockingText">Blocking</label>
+                            <input type="text" class="form-control" id="blockingText" aria-describedby="blockingHelp">
+                            <small id="blockingHelp" class="form-text text-muted">Is there anything blocking you?</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-primary" onclick="saveEntry();">Save</button>
+                </div>
+              </div>
+            </div>
+        </div>  
+
+
 
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.4.0.js" integrity="sha256-DYZMCC8HTC+QDr5QNaIcfR7VSPtcISykd+6eSmBW5qo=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-  </body>
+    <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+    <script src = "https://cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
+    <script th:inline="javascript">
+        $(document).ready(function () {
+            $('#Table').DataTable();
+        });
+
+        function rowClicked(value) {
+            location.href = "../standupDetails/" + value;
+        }
+        
+        function buttonClicked() {
+            $('#entryModal').modal('toggle');
+          }
+
+        function saveEntry() {
+            // pull from input
+            var user = /*[[${user}]]*/ null;
+            var date = /*[[${date}]]*/ null;
+            var team = /*[[${team}]]*/ null;
+            var entry = {"user":user, "date":date, "team":team, "todayText":$('#todayText').val(),"tomorrowText":$('#tomorrowText').val(),"blockingText":$('#blockingText').val()};
+
+            $.ajax({
+                url : 'http://localhost:5000/api/entry',
+                type : 'POST',
+                data: JSON.stringify(entry),
+                headers: {
+                        'Content-Type': 'application/json'
+                    },
+                dataType:'application/json',
+                success : function(data) {              
+                    alert('Data: '+ data);
+                },
+                error : function(request,error)
+                {
+                    alert(request.responseText);
+                }
+            });
+        }
+    </script>
+</body>
 </html>

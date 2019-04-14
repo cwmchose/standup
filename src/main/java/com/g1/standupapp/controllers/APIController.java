@@ -16,6 +16,7 @@ import com.g1.standupapp.repositories.*;
 import com.g1.standupapp.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -38,7 +39,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 
 @Controller
 @RequestMapping("/api")
-public class APIController {
+public class APIController{
 
 	@Autowired
 	UserRepository userRepository;
@@ -64,7 +65,7 @@ public class APIController {
     @ResponseBody
     public String currentUserName(Principal principal) {
 		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
-    	return test.getPrincipal().getAttributes().get("email").toString();
+    	return test.getPrincipal().getAttributes().toString();
 	}
 	
 
@@ -79,7 +80,12 @@ public class APIController {
 	@RequestMapping(value = "/user", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public User saveUser(@Valid @RequestBody User user) {
-    	return userRepository.save(user);
+		if(userRepository.findByEmail(user.getEmail()).isPresent()){
+			return null;
+		}
+		else{
+			return userRepository.save(user);
+		}
 	}
 
 	@RequestMapping(value = "/user/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -109,11 +115,18 @@ public class APIController {
 	@RequestMapping(value = "/user/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> deleteUser(@PathVariable(value = "id") Long userId) {
-		User user = userRepository.findById(userId).get();
-
-		userRepository.delete(user);
-
-		return ResponseEntity.ok().build();
+		if(userRepository.findById(userId).isPresent()){
+			User user = userRepository.findById(userId).get();
+			List<StandupEntry> entries = standupEntryRepository.findByUser_UserID(user.getUserID());
+			for(StandupEntry entry: entries){
+				standupEntryRepository.delete(entry);
+			}
+			userRepository.delete(user);
+			return ResponseEntity.ok().build();
+		}
+		else{
+			return ResponseEntity.badRequest().build();
+		}
 	}
 	//// End of User CRUD
 
@@ -129,7 +142,13 @@ public class APIController {
 	@RequestMapping(value = "/team", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Team saveTeam(@Valid @RequestBody Team team) {
-    	return teamRepository.save(team);
+		if(teamRepository.findByTeamName(team.getTeamName()).isPresent()){
+			return null;
+		}
+		else{
+			return teamRepository.save(team);
+		}
+    	
 	}
 
 	@RequestMapping(value = "/team/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -157,11 +176,19 @@ public class APIController {
 	@RequestMapping(value = "/team/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> deleteTeam(@PathVariable(value = "id") Long teamId) {
-		Team team = teamRepository.findById(teamId).get();
+		if(teamRepository.findById(teamId).isPresent()){
+			Team team = teamRepository.findById(teamId).get();
+			List<Standup> standups = standupRepository.findByTeam_TeamName(team.getTeamName());
+			for(Standup standup: standups){
+				standupRepository.delete(standup);
+			}
+			teamRepository.delete(team);
 
-		teamRepository.delete(team);
-
-		return ResponseEntity.ok().build();
+			return ResponseEntity.ok().build();
+		}
+		else{
+			return ResponseEntity.badRequest().build();
+		}
 	}
 	//// End of Team CRUD
 
@@ -176,10 +203,10 @@ public class APIController {
 
 	@RequestMapping(value = "/entry", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public StandupEntry saveStandupEntry(@Valid @RequestBody StandupEntry standupEntry) {
-		standupEntryRepository.save(standupEntry);
+	public ResponseEntity<Object> saveStandupEntry(@Valid @RequestBody StandupEntry standupEntry) {
 		if(!standupEntryRepository.findByDateAndTeam_TeamNameAndUser_Email(standupEntry.getDate(), standupEntry.getTeam().getTeamName(), standupEntry.getUser().getEmail()).isPresent()){
-			if(standupRepository.findByDateAndTeam_TeamName(standupEntry.getDate(),standupEntry.getTeam().getTeamName()).isPresent()){
+			standupEntryRepository.save(standupEntry);
+			if(standupRepository.findByDateAndTeam_TeamName(standupEntry.getDate(),standupEntry.getTeam().getTeamName()).isPresent()){	
 				Standup standup = standupRepository.findByDateAndTeam_TeamName(standupEntry.getDate(),standupEntry.getTeam().getTeamName()).get();
 				Set <StandupEntry> entrySet = standup.getStandups();
 				entrySet.add(standupEntry);
@@ -194,10 +221,10 @@ public class APIController {
 				standup.setStandups(entrySet);
 				standupRepository.save(standup);
 			}
-			return standupEntry;
+			return ResponseEntity.ok().build();
 		}
 		else
-			return null;
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("An entry for this date already exists");
 	}
 
 	@RequestMapping(value = "/entry/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -229,11 +256,15 @@ public class APIController {
 	@RequestMapping(value = "/entry/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> deleteStandupEntry(@PathVariable(value = "id") Long standupEntryId) {
-		StandupEntry standupEntry = standupEntryRepository.findById(standupEntryId).get();
+		if(standupEntryRepository.findById(standupEntryId).isPresent()){
+			StandupEntry standupEntry = standupEntryRepository.findById(standupEntryId).get();
+			standupEntryRepository.delete(standupEntry);
+			return ResponseEntity.ok().build();
+		}
+		else{
+			return ResponseEntity.badRequest().build();
+		}
 
-		standupEntryRepository.delete(standupEntry);
-
-		return ResponseEntity.ok().build();
 	}
 	//// End of StandupEntry CRUD
 
@@ -249,7 +280,10 @@ public class APIController {
 	@RequestMapping(value = "/standup", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Standup saveStandup(@Valid @RequestBody Standup standup) {
-    return standupRepository.save(standup);
+		if(standupRepository.findByDateAndTeam_TeamName(standup.getDate(), standup.getTeam().getTeamName()).isPresent())
+			return null;
+		else
+    		return standupRepository.save(standup);
 }
 
 	@RequestMapping(value = "/standup/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -278,11 +312,14 @@ public class APIController {
 	@RequestMapping(value = "/standup/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> deleteStandup(@PathVariable(value = "id") Long standupId) {
-		Standup standup = standupRepository.findById(standupId).get();
-
-		standupRepository.delete(standup);
-
-		return ResponseEntity.ok().build();
+		if(standupRepository.findById(standupId).isPresent()){
+			Standup standup = standupRepository.findById(standupId).get();
+			standupRepository.delete(standup);
+			return ResponseEntity.ok().build();
+		}
+		else{
+			return ResponseEntity.badRequest().build();
+		}
 	}
 	//// End of Standup CRUD
 
@@ -293,19 +330,35 @@ public class APIController {
 	@ResponseBody
 	public String dummyUser() {
 		
-		User dummy1 = new User();
-		dummy1.setFirstName("Coleman");
-		dummy1.setLastName("McHose");
-		dummy1.setEmail("cole.mchose@gmail.com");
-		dummy1.setTeams(new HashSet<>());
-		userRepository.save(dummy1);
+		User cole = new User();
+		cole.setFirstName("Coleman");
+		cole.setLastName("McHose");
+		cole.setEmail("cole.mchose@gmail.com");
+		cole.setTeams(new HashSet<>());
+		userRepository.save(cole);
 
 		Team dummyTeam = new Team();
 		dummyTeam.setScrumMasterEmail("cole.mchose@gmail.com");
 		dummyTeam.setTeamName("Alpha Team");
+		dummyTeam.setDescription("Our goal is to build a working capstone.");
 		Set<User> userSet = new HashSet<User>();
-		userSet.add(dummy1);
+		userSet.add(cole);
 
+		User ed = new User();
+		ed.setFirstName("Edgar");
+		ed.setLastName("Villarreal");
+		ed.setEmail("eivillarreal@mix.wvu.edu");
+		ed.setTeams(new HashSet<>());
+		userRepository.save(ed);
+		userSet.add(ed);
+
+		User tony = new User();
+		tony.setFirstName("Tony");
+		tony.setLastName("Bag-O-Donuts");
+		tony.setEmail("ajdt703@gmail.com");
+		tony.setTeams(new HashSet<>());
+		userRepository.save(tony);
+		userSet.add(tony);
 
 		for(int i = 0; i<5; i++){
 			User dummy2 = new User();
@@ -428,4 +481,5 @@ public class APIController {
 	public List<Team> getTeamsByUser(@PathVariable(value = "email") String email){
 		return teamRepository.findByUsers_Email(email);
 	}
+
 }

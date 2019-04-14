@@ -16,4 +16,6 @@ public interface TeamRepository extends CrudRepository<Team, Long> {
     public Optional<Team> findByTeamName(String teamName);
 
     public List<Team> findByUsers_Email(String email);
+
+    public List<Team> findByScrumMasterEmail(String email);
 }

@@ -22,7 +22,10 @@ public class Team{
     @Column(name = "scrum_master_email", nullable = false)
     private String scrumMasterEmail;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @Column(name = "description", nullable = false)
+    private String description;
+
+    @ManyToMany(cascade = {CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JoinTable(
         name = "Team_Members",
         joinColumns = { @JoinColumn(name = "team_id") },
@@ -67,5 +70,11 @@ public class Team{
         this.scrumMasterEmail = scrumMasterEmail;
     }
 
+    public String getDescription() {
+        return this.description;
+    }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

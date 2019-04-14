@@ -18,4 +18,6 @@ public interface StandupRepository extends CrudRepository<Standup,Long>{
     public Optional<Standup> findById(Long standupID);
 
     public Optional<Standup> findByDateAndTeam_TeamName(LocalDate Date, String teamName);
+
+    public List<Standup> findByTeam_TeamName(String teamName);
 }

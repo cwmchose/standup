@@ -64,7 +64,7 @@ public class WebController{
     @ResponseBody
     public String currentUserName(Principal principal) {
 		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
-    	return test.getPrincipal().getAttributes().get("email").toString();
+    	return test.getPrincipal().getAttributes().toString();
 	}
 	
 
@@ -79,7 +79,12 @@ public class WebController{
 	@RequestMapping(value = "/user", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public User saveUser(@Valid @RequestBody User user) {
-    	return userRepository.save(user);
+		if(userRepository.findByEmail(user.getEmail()).isPresent()){
+			return null;
+		}
+		else{
+			return userRepository.save(user);
+		}
 	}
 
 	@RequestMapping(value = "/user/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -109,11 +114,18 @@ public class WebController{
 	@RequestMapping(value = "/user/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> deleteUser(@PathVariable(value = "id") Long userId) {
-		User user = userRepository.findById(userId).get();
-
-		userRepository.delete(user);
-
-		return ResponseEntity.ok().build();
+		if(userRepository.findById(userId).isPresent()){
+			User user = userRepository.findById(userId).get();
+			List<StandupEntry> entries = standupEntryRepository.findByUser_UserID(user.getUserID());
+			for(StandupEntry entry: entries){
+				standupEntryRepository.delete(entry);
+			}
+			userRepository.delete(user);
+			return ResponseEntity.ok().build();
+		}
+		else{
+			return ResponseEntity.badRequest().build();
+		}
 	}
 	//// End of User CRUD
 
@@ -129,7 +141,13 @@ public class WebController{
 	@RequestMapping(value = "/team", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Team saveTeam(@Valid @RequestBody Team team) {
-    	return teamRepository.save(team);
+		if(teamRepository.findByTeamName(team.getTeamName()).isPresent()){
+			return null;
+		}
+		else{
+			return teamRepository.save(team);
+		}
+    	
 	}
 
 	@RequestMapping(value = "/team/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -157,11 +175,19 @@ public class WebController{
 	@RequestMapping(value = "/team/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> deleteTeam(@PathVariable(value = "id") Long teamId) {
-		Team team = teamRepository.findById(teamId).get();
+		if(teamRepository.findById(teamId).isPresent()){
+			Team team = teamRepository.findById(teamId).get();
+			List<Standup> standups = standupRepository.findByTeam_TeamName(team.getTeamName());
+			for(Standup standup: standups){
+				standupRepository.delete(standup);
+			}
+			teamRepository.delete(team);
 
-		teamRepository.delete(team);
-
-		return ResponseEntity.ok().build();
+			return ResponseEntity.ok().build();
+		}
+		else{
+			return ResponseEntity.badRequest().build();
+		}
 	}
 	//// End of Team CRUD
 
@@ -177,9 +203,9 @@ public class WebController{
 	@RequestMapping(value = "/entry", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public StandupEntry saveStandupEntry(@Valid @RequestBody StandupEntry standupEntry) {
-		standupEntryRepository.save(standupEntry);
 		if(!standupEntryRepository.findByDateAndTeam_TeamNameAndUser_Email(standupEntry.getDate(), standupEntry.getTeam().getTeamName(), standupEntry.getUser().getEmail()).isPresent()){
-			if(standupRepository.findByDateAndTeam_TeamName(standupEntry.getDate(),standupEntry.getTeam().getTeamName()).isPresent()){
+			standupEntryRepository.save(standupEntry);
+			if(standupRepository.findByDateAndTeam_TeamName(standupEntry.getDate(),standupEntry.getTeam().getTeamName()).isPresent()){	
 				Standup standup = standupRepository.findByDateAndTeam_TeamName(standupEntry.getDate(),standupEntry.getTeam().getTeamName()).get();
 				Set <StandupEntry> entrySet = standup.getStandups();
 				entrySet.add(standupEntry);
@@ -229,11 +255,15 @@ public class WebController{
 	@RequestMapping(value = "/entry/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> deleteStandupEntry(@PathVariable(value = "id") Long standupEntryId) {
-		StandupEntry standupEntry = standupEntryRepository.findById(standupEntryId).get();
+		if(standupEntryRepository.findById(standupEntryId).isPresent()){
+			StandupEntry standupEntry = standupEntryRepository.findById(standupEntryId).get();
+			standupEntryRepository.delete(standupEntry);
+			return ResponseEntity.ok().build();
+		}
+		else{
+			return ResponseEntity.badRequest().build();
+		}
 
-		standupEntryRepository.delete(standupEntry);
-
-		return ResponseEntity.ok().build();
 	}
 	//// End of StandupEntry CRUD
 
@@ -249,7 +279,10 @@ public class WebController{
 	@RequestMapping(value = "/standup", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Standup saveStandup(@Valid @RequestBody Standup standup) {
-    return standupRepository.save(standup);
+		if(standupRepository.findByDateAndTeam_TeamName(standup.getDate(), standup.getTeam().getTeamName()).isPresent())
+			return null;
+		else
+    		return standupRepository.save(standup);
 }
 
 	@RequestMapping(value = "/standup/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -278,11 +311,14 @@ public class WebController{
 	@RequestMapping(value = "/standup/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> deleteStandup(@PathVariable(value = "id") Long standupId) {
-		Standup standup = standupRepository.findById(standupId).get();
-
-		standupRepository.delete(standup);
-
-		return ResponseEntity.ok().build();
+		if(standupRepository.findById(standupId).isPresent()){
+			Standup standup = standupRepository.findById(standupId).get();
+			standupRepository.delete(standup);
+			return ResponseEntity.ok().build();
+		}
+		else{
+			return ResponseEntity.badRequest().build();
+		}
 	}
 	//// End of Standup CRUD
 
@@ -293,19 +329,35 @@ public class WebController{
 	@ResponseBody
 	public String dummyUser() {
 		
-		User dummy1 = new User();
-		dummy1.setFirstName("Coleman");
-		dummy1.setLastName("McHose");
-		dummy1.setEmail("cole.mchose@gmail.com");
-		dummy1.setTeams(new HashSet<>());
-		userRepository.save(dummy1);
+		User cole = new User();
+		cole.setFirstName("Coleman");
+		cole.setLastName("McHose");
+		cole.setEmail("cole.mchose@gmail.com");
+		cole.setTeams(new HashSet<>());
+		userRepository.save(cole);
 
 		Team dummyTeam = new Team();
 		dummyTeam.setScrumMasterEmail("cole.mchose@gmail.com");
 		dummyTeam.setTeamName("Alpha Team");
+		dummyTeam.setDescription("Our goal is to build a working capstone.");
 		Set<User> userSet = new HashSet<User>();
-		userSet.add(dummy1);
+		userSet.add(cole);
 
+		User ed = new User();
+		ed.setFirstName("Edgar");
+		ed.setLastName("Villarreal");
+		ed.setEmail("eivillarreal@mix.wvu.edu");
+		ed.setTeams(new HashSet<>());
+		userRepository.save(ed);
+		userSet.add(ed);
+
+		User tony = new User();
+		tony.setFirstName("Tony");
+		tony.setLastName("Bag-O-Donuts");
+		tony.setEmail("ajdt703@gmail.com");
+		tony.setTeams(new HashSet<>());
+		userRepository.save(tony);
+		userSet.add(tony);
 
 		for(int i = 0; i<5; i++){
 			User dummy2 = new User();
@@ -440,7 +492,6 @@ public class WebController{
 	@GetMapping("/teamList")
 	public String teamList(Model model, Principal principal){
 		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
-		model.addAttribute("email", test.getPrincipal().getAttributes().get("email").toString());
 		model.addAttribute("teams", teamRepository.findByUsers_Email(test.getPrincipal().getAttributes().get("email").toString()));
 		return "teamList";
 	}
@@ -448,7 +499,55 @@ public class WebController{
 	@GetMapping("/teamDetails/{teamName}")
 	public String teamDetails(Model model, Principal principal, @PathVariable(value = "teamName") String teamName){
 		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
-		model.addAttribute("team", teamRepository.findByTeamName(teamName).get());
+		Team team = teamRepository.findByTeamName(teamName).get();
+		User scrumMaster = userRepository.findByEmail(team.getScrumMasterEmail()).get();
+		User currentUser = userRepository.findByEmail(test.getPrincipal().getAttributes().get("email").toString()).get();
+		model.addAttribute("team", team);
+		model.addAttribute("scrumMaster", scrumMaster.getFirstName() + " " + scrumMaster.getLastName());
+		model.addAttribute("standups", standupRepository.findByTeam_TeamName(teamName));
+		model.addAttribute("user", currentUser);
+		model.addAttribute("date", LocalDate.now());
 		return "teamDetails";
+	}
+
+	@GetMapping("/standupDetails/{standupID}")
+	public String standupDetails(Model model, Principal principal, @PathVariable(value = "standupID") Long standupID){
+		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
+		model.addAttribute("standup", standupRepository.findById(standupID).get());
+		return "standupDetails";
+	}
+
+	@GetMapping("/home")
+	public String home(Model model, Principal principal){
+		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
+		model.addAttribute("name", test.getPrincipal().getAttributes().get("name").toString());
+		return "home";
+	}
+
+	@GetMapping("/manageTeams")
+	public String manageTeams(Model model, Principal principal){
+		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
+		User currentUser = userRepository.findByEmail(test.getPrincipal().getAttributes().get("email").toString()).get();
+		model.addAttribute("teams", teamRepository.findByScrumMasterEmail(test.getPrincipal().getAttributes().get("email").toString()));
+		model.addAttribute("user", currentUser);
+		return "manageTeams";
+	}
+
+	@GetMapping("/profile")
+	public String profile(Model model, Principal principal){
+		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
+		User currentUser = userRepository.findByEmail(test.getPrincipal().getAttributes().get("email").toString()).get();
+		model.addAttribute("user", currentUser);
+		return "profile";
+	}
+
+	@GetMapping("/createTeam")
+	public String createTeam(Model model, Principal principal){
+		return "createTeam";
+	}
+
+	@GetMapping("invites")
+	public String invites(Model model, Principal principal){
+		return "invites";
 	}
 }
