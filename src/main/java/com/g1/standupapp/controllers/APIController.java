@@ -53,6 +53,9 @@ public class APIController{
 	@Autowired
 	StandupRepository standupRepository;
 
+	@Autowired
+	InviteRepository inviteRepository;
+
 	@RequestMapping("/test")
 	@ResponseBody
     public String test(String name, Model model) {
@@ -109,6 +112,7 @@ public class APIController{
 		user.setLastName(userDetails.getLastName());
 		user.setTeams(userDetails.getTeams());
 		user.setEmail(userDetails.getEmail());
+		user.setInvites(userDetails.getInvites());
 
 		User updatedUser = userRepository.save(user);
 		return updatedUser;
@@ -132,7 +136,66 @@ public class APIController{
 	}
 	//// End of User CRUD
 
+	//// Start of Invite CRUD
+	@RequestMapping(value = "/invite", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public List<Invite> getAllInvites() {
+    	return inviteRepository.findAll();
+	}
 
+	@RequestMapping(value = "/invite", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> saveInvite(@Valid @RequestBody Invite invite) {
+		if(inviteRepository.findByUser_UserIDAndTeamName(invite.getUser().getUserID(), invite.getTeamName()).isPresent()){
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invite already sent");
+		}
+		else{
+			inviteRepository.save(invite);
+			return ResponseEntity.ok().build();
+		}
+	}
+
+	@RequestMapping(value = "/invite/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public Invite getInviteById(@PathVariable(value = "id") Long inviteId) {
+		if(inviteRepository.findById(inviteId).isPresent())
+			return inviteRepository.findById(inviteId).get();
+		else
+			return null;
+			
+	}
+
+	// fix
+	@RequestMapping(value = "/invite/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public Invite updateInvite(@PathVariable(value = "id") Long inviteId, @Valid @RequestBody Invite inviteDetails) {
+		Invite invite = inviteRepository.findById(inviteId).get();
+
+		invite.setTeamName(inviteDetails.getTeamName());
+		invite.setUser(inviteDetails.getUser());
+
+		Invite updatedInvite = inviteRepository.save(invite);
+		return updatedInvite;
+	}
+
+	@RequestMapping(value = "/invite/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> deleteInvite(@PathVariable(value = "id") Long inviteId) {
+		if(inviteRepository.findById(inviteId).isPresent()){
+			Invite invite = inviteRepository.findById(inviteId).get();
+			// User user = invite.getUser();
+			// Set<Invite> invites = user.getInvites();
+			// invites.remove(invite);
+			// user.setInvites(invites);
+			// userRepository.save(user);
+			inviteRepository.delete(invite);
+			return ResponseEntity.ok().build();
+		}
+		else{
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invite not found");
+		}
+	}
+	//// End of Invite CRUD
 
 	//// Start of Team CRUD
 	@RequestMapping(value = "/team", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -300,6 +363,7 @@ public class APIController{
 			return null;
 	}
 
+	// fix
 	@RequestMapping(value = "/standup/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Standup updateStandup(@PathVariable(value = "id") Long standupId, @Valid @RequestBody Standup standupDetails) {
@@ -309,6 +373,7 @@ public class APIController{
 		standup.setDate(standupDetails.getDate());
 		standup.setTeam(standupDetails.getTeam());
 		standup.setStandups(standupDetails.getStandups());
+
 		Standup updatedStandup = standupRepository.save(standup);
 		return updatedStandup;
 	}
@@ -339,10 +404,11 @@ public class APIController{
 		cole.setLastName("McHose");
 		cole.setEmail("cole.mchose@gmail.com");
 		cole.setTeams(new HashSet<>());
+		cole.setInvites(new HashSet<>());
 		userRepository.save(cole);
 
 		Team dummyTeam = new Team();
-		dummyTeam.setScrumMasterEmail("eivillarreal@mix.wvu.edu");
+		dummyTeam.setScrumMasterEmail("cole.mchose@gmail.com");
 		dummyTeam.setTeamName("Alpha Team");
 		dummyTeam.setDescription("Our goal is to build a working capstone.");
 		Set<User> userSet = new HashSet<User>();
@@ -353,14 +419,20 @@ public class APIController{
 		ed.setLastName("Villarreal");
 		ed.setEmail("eivillarreal@mix.wvu.edu");
 		ed.setTeams(new HashSet<>());
+		ed.setInvites(new HashSet<>());
 		userRepository.save(ed);
-		userSet.add(ed);
+		
+		Invite invite = new Invite();
+		invite.setTeamName("Alpha Team");
+		invite.setUser(ed);
+		inviteRepository.save(invite);
 
 		User tony = new User();
 		tony.setFirstName("Tony");
 		tony.setLastName("Bag-O-Donuts");
 		tony.setEmail("ajdt703@gmail.com");
 		tony.setTeams(new HashSet<>());
+		tony.setInvites(new HashSet<>());
 		userRepository.save(tony);
 		userSet.add(tony);
 
@@ -402,7 +474,6 @@ public class APIController{
 		return "OwO what's this";
 	}
 
-	// fix
 	@RequestMapping(value = "user/email/{email}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public User getUserByEmail(@PathVariable(value = "email") String email){

@@ -32,13 +32,11 @@
               <thead>
                   <tr>
                     <th>Team Name</th>
-                    <th>Date</th>
                   </tr>
               </thead>
               <tbody>
-                  <tr th:each="invite : ${user.invites}" style="cursor: pointer" th:data-parameter1="${user.userID}" th:data-parameter2="${invite.teamID}" onclick="rowClicked(this.getAttribute('data-parameter1'),this.getAttribute('data-parameter2'));">
+                  <tr th:each="invite : ${user.invites}" style="cursor: pointer" th:data-parameter1="${user.userID}" th:data-parameter2="${invite.teamName}" onclick="rowClicked(this.getAttribute('data-parameter1'),this.getAttribute('data-parameter2'));">
                       <td th:text="${invite.teamName}"></td>
-                      <td th:text="${invite.date}"></td>
                   </tr>
               </tbody>
             </table>

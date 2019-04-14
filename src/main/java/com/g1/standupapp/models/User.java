@@ -31,7 +31,7 @@ public class User implements Comparable<User>{
 
     @OneToMany(
         mappedBy = "user",
-        cascade = CascadeType.ALL
+        cascade = {CascadeType.MERGE, CascadeType.REMOVE}
     )
     private Set<Invite> invites = new HashSet<Invite>();
 
