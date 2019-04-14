@@ -17,7 +17,10 @@ const askForSignIn = require('./intents/ask-for-sign-in');
 const create = require('./intents/create');
 const playback = require('./intents/playback');
 const startUp = require('./intents/startup');
-const post = require('./intents/post-test');
+const go_to_menu = require('./intents/go_to_menu');
+const list_teams = require('./intents/list_teams');
+const create_team = require('./intents/create_team');
+const check_invites = require('./intents/check_invites');
 const fallback = require('./intents/fallback');
 
 const CLIENT_ID = '836393444189-8m0pe63bmej74vn896u8iqdafic9nn1o.apps.googleusercontent.com';
@@ -42,7 +45,10 @@ addIntents(
 	startUp,
   create,
   fallback,
-  post,
+  create_team,
+  check_invites,
+  list_teams,
+  go_to_menu,
   playback
 );
 

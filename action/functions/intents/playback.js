@@ -4,28 +4,23 @@
 //
 //@Author: coleman mchose, cole.mchose@gmail.com
 const axios = require('axios');
-const backend = 'http://capstone-env.ruehm2cvrs.us-east-2.elasticbeanstalk.com/'
-const app = require('../app');
-
-function makePlaybackString(data){
-	const team = data.team.teamName;
-	const date = data.date;
-	const standups = data.standups;
-
-	var str = 'Ok, here is the stand up for ' + team + ' on ' + date + ': ';
-	
-	standups.forEach(standup => {
-		str += standup.user.firstName + ' said, ' + standup.todayText + '. ' + standup.tomorrowText + '. ';
-		str += (standup.blockingText == '' || standup.blockingText == null) ? 
-			'Nothing was blocking them. ' : 'Something was blocking them, they said: ' + standup.blockingText + '. ';
-	});
-	console.log(str);
-	return str;
-}
+const backend = 'http://capstone-env.ruehm2cvrs.us-east-2.elasticbeanstalk.com/api/'
+const CONTEXTS = require('../lib/app-contexts');
+const test_data = require('../lib/test-data');
+const utils  = require('../lib/standup-utils');
+const strings = require('../lib/strings');
 
 module.exports = {
 
 	'playback': async (conv, params) => {
+		console.log('in playback');
+		//match team to input or it will reprompt the user
+		const teamValidation = utils.teamValidation(conv,params.team_name); 
+		if(teamValidation != null){
+			return conv.ask(teamValidation);
+		}
+
+		
 		console.log(conv.user.profile.payload);
 		const payload = conv.user.profile.payload;
 		const email = payload.email; 
@@ -34,16 +29,53 @@ module.exports = {
 		console.log(date);
 		try{
 			const rs = await axios.get(backend+'standup/' + date + '/email/' + email);
-			if(rs.data[0] == null)
-				return conv.ask('There are not any entries for that day');
+			if(rs.data[0] == null){
+				conv.data.myContext = CONTEXTS.menu;
+				conv.contexts.set(CONTEXTS.menu.name, 1);
+
+				return conv.ask(utils.getPrompt(conv, 'no_standup', 
+					{
+						team : conv.data.current_team, 
+					 	date: date
+					}));
+			}
+
+			conv.data.myContext = CONTEXTS.playback;
+			conv.contexts.set(CONTEXTS.playback.name, 1);
+
 			console.log(rs.data);
 			console.log(rs.data[0]);
-			return conv.ask(makePlaybackString(rs.data[0]));
+			return conv.ask(utils.getPrompt(conv, 'playback_prompt'));
+
 		} catch(error) {
 			console.log(error)
-			return conv.ask('there was an http error');
+			conv.data.myContext = CONTEXTS.menu;
+			conv.contexts.set(CONTEXTS.menu.name, 1);
+			return conv.ask(utils.getPrompt(conv, 'http_error'));
 		}
 	},
 
+	'play_single_member' : (conv, params) => {
+		console.log('in single member');
+		console.log(params);
+
+		conv.data.myContext = CONTEXTS.playback;
+		conv.contexts.set(CONTEXTS.playback.name, 1);
+
+		const member = utils.matchTeamMember(params);
+		if(member == null){
+			return conv.ask(utils.getPrompt(conv, 'invalid_member'));
+		}
+		
+		conv.ask(utils.getPrompt(conv, 'play_entry', entry));
+		return conv.ask(utils.getPrompt(conv, 'playback_prompt'));
+	},
+
+	'play_entire' : (conv) => {
+			conv.contexts.set(CONTEXTS.playback.name, 1);
+			conv.data.myContext = CONTEXTS.menu;
+			conv.contexts.set(CONTEXTS.menu.name, 1);
+			return conv.ask(utils.getPrompt(conv, 'play_entire', conv.data.standup));			
+	}
 
 };
