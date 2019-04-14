@@ -27,23 +27,58 @@
 
 	<div class="container">
         <div class="bg-white rounded shadow-sm p-3 mt-5 mb-5">
-            <p>profile</p>
-            
-        </div>
+            <div class="col-6 mx-auto col-md-6 order-md-2">
 
+            </div>
+            <h4 class="col-4">User Profile</h5>
+            <div>
+              <form>
+                <h5 class="ml-3 mt-5">Email</h5>
+                <input type="text" class="text-muted ml-3" th:value="${user.email}" readonly />
+                <h5 class="ml-3 mt-5">First Name</h5>
+                <input type="text" id="firstName" class="ml-3" th:value="${user.firstName}" required />
+                <h5 class="ml-3 mt-5">Last Name</h5>
+                <input type="text" id="lastName" class="ml-3" th:value="${user.lastName}" required />
+              </form>
+              <div class="footer mb-5 mt-3">
+                <button id="button" class="btn btn-primary float-right" onclick="buttonClicked()">Save Changes</button>
+              </div>
+            </div>
+        </div>
 	</div>
 
-
-
-
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.4.0.js" integrity="sha256-DYZMCC8HTC+QDr5QNaIcfR7VSPtcISykd+6eSmBW5qo=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-    <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
-    <script src = "https://cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
-    <script>
-    </script>
+  <!-- Optional JavaScript -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.4.0.js" integrity="sha256-DYZMCC8HTC+QDr5QNaIcfR7VSPtcISykd+6eSmBW5qo=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+  <script src = "https://cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
+  <script th:inline="javascript">
+     $(document).ready(function () {
+            $('#Table').DataTable();
+     });
+     function buttonClicked() {
+      var user = /*[[${user}]]*/ null;
+      user.firstName = $('#firstName').val();
+      user.lastName = $('#lastName').val();
+      $.ajax({
+        url : 'http://localhost:5000/api/user/' + user.userID,
+        type : 'PUT',
+        data: JSON.stringify(user),
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        dataType:'application/json',
+        success : function(data) {              
+          alert('Data: '+ data);
+        },
+        error : function(request,error)
+        {
+          alert("Request: "+JSON.stringify(request));
+        }
+      });
+    }
+  </script>
 </body>
 </html>
