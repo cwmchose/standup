@@ -1,3 +1,5 @@
+const utils  = require('./standup-utils');
+
 module.exports = {
 	
 	'prompts' : {
@@ -52,7 +54,12 @@ module.exports = {
 		},
 		'review' : {
 			text: (entry) => {
-				return utils.encodeEntry(entry);
+				var str = 'Here is the stand up you asked for:\n ';
+				str += entry.todayText + '.\n ' + entry.tomorrowText + '.\n ';
+				str += (entry.blockingText == null || entry.blockingText == '') ?
+						' Nothing was blocking you.' :  'Something was blocking you. You said:\n ' + entry.blockingText;
+				str += ".\n";
+				return str;
 			}
 		},
 		'submit_review' : {
@@ -123,12 +130,12 @@ module.exports = {
 		},
 		'taken_name': {
 			text: (name) => { 
-				return 'Sorry, ' + name + 'is already taken. Please try something else.';
+				return 'Sorry, ' + name + ' is already taken. Please try something else.';
 			}
 		},
 		'invalid_name': {
 			text: (name) => { 
-				return 'Sorry, ' + name + 'is an invalid name. Please try something else.';
+				return 'Sorry, ' + name + ' is an invalid name. Please try something else.';
 			}
 		},
 		'review_name': {
@@ -136,35 +143,66 @@ module.exports = {
 				return 'I have ' + name + ' as the team name. ';
 			}
 		},
-		'confirm_name': {
+		'confirm_team': {
 			text: (name) => { 
-				return 'I have ' + name + ' as the team name, is that correct?';
+				return 'I have ' + name + ' as the team name, are you ready to submit this?';
 			}
 		},
 		'team_submit_success': {
 			text: ['Ok, your team was created successfully']
 		},
 		'team_submit_failure': {
-			text: ['Sorry, something went wrong making your team. Please try again.']
+			text: ['Sorry, something went wrong making your team. Please try again later.']
 		},
 
 /****** LIST TEAMS ******/
-		'list_teams': (teams) => {
-			if(teams == null || teams.length == 0)
-			return 'I don\'t think you\'re on any teams at the moment';
-			var str = 'The teams I have you on are: \n';
-			for(const team of teams){
-				str += team.teamName + '\n';
+		'list_teams': {
+			text: (teams) => {
+				if(teams == null || teams.length == 0)
+					return 'I don\'t think you\'re on any teams at the moment';
+				var str = 'The teams I have you on are: \n';
+				console.log(teams);
+				for(const team of teams){
+					console.log(team);
+					str += team.teamName + '\n';
+				}
+				return str;
 			}
-			return str;
 		},
 
 /****** EXTRAS ******/
+		'select_failed': {
+			text: (data) => {
+				return 'Sorry, I could not match' + data + ' with any of the teams I currently see you on. Please try again ';
+			}
+		},
+		'team_selected': {
+			text: (data) => {
+				return 'Ok, ' + data.team + ' selected for ' + data.action + ' ';
+			}
+		},
+		'select_team': {
+			text: (teams) => {
+				var str = 'What team would you like to do this for? ' + 
+					'You belong to: '; 
+				for(var i =0; i<teams.length-2; i++){
+					str += teams[i].teamName + ', ';
+				}
+				str+= ' and ' + teams[teams.length-1];
+				return str;
+			}
+		},
 		'go_to_menu': {
 			text: ['Ok, sending you to the menu']
 		},
 		'http_error': {
 			text: ['there was an http error']
+		},
+		'abort_to_menu': {
+			text: ['Ok, returning to menu']
+		},
+		'abort_final': {
+			text: ['Goodbye', 'Until next time', 'Ok, see you later', 'Closing out']
 		},
 
 	},

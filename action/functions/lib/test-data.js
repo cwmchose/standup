@@ -1,4 +1,25 @@
 module.exports = {
+	team: {
+		"teamName": "",
+		"scrumMasterEmail": "",
+		"description" : "",
+		"users": [
+     ]
+ },
+	user: {
+		"userID": "",
+		"email": "",
+		"firstName": "",
+    "lastName": ""
+	},
+	entry: {
+		"date": "",
+		"user": "",
+		"todayText": "",
+		"tomorrowText": "",
+		"blockingText": ""
+	},
+
 	test_user: {
 		"userID": 1,
 		"email": "cole.mchose@gmail.com",

@@ -63,15 +63,20 @@ module.exports = {
 	naming: {
 		name:  "naming_context", 
 		reprompt: "",
-		help: ""
+		help: "state a name for your team"
 	},
 	submit_team: {
 		name:  "submit_team_context", 
 		reprompt: "",
-		help: ""
+		help: "you can finish creating the team, choose a different name, or abandon the submission"
 	},
 
 
+	select_team: {
+		name:  "select_team_context",
+		reprompt: "",
+		help: "What team do you want to do this for?"
+	},
 	no_account: {
 		name:  "no_account_context",
 		reprompt: "",

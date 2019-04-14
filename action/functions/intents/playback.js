@@ -13,11 +13,12 @@ const strings = require('../lib/strings');
 module.exports = {
 
 	'playback': async (conv, params) => {
+		conv.data.current_action = 'listening to a stand up';
 		console.log('in playback');
 		//match team to input or it will reprompt the user
-		const teamValidation = utils.teamValidation(conv,params.team_name); 
-		if(teamValidation != null){
-			return conv.ask(teamValidation);
+		const team_found = utils.teamValidation(conv,params.team_name); 
+		if(team_found != null){
+			return conv.ask(utils.getPrompt(conv, 'select_team', teams));
 		}
 
 		
@@ -29,6 +30,7 @@ module.exports = {
 		console.log(date);
 		try{
 			const rs = await axios.get(backend+'standup/' + date + '/email/' + email);
+			conv.data.standups = rs.data;
 			if(rs.data[0] == null){
 				conv.data.myContext = CONTEXTS.menu;
 				conv.contexts.set(CONTEXTS.menu.name, 1);
@@ -42,6 +44,12 @@ module.exports = {
 
 			conv.data.myContext = CONTEXTS.playback;
 			conv.contexts.set(CONTEXTS.playback.name, 1);
+
+			for(const standup of conv.data.standups){
+				if(standup.team.teamName == conv.data.current_team){
+					conv.data.current_standup = standup
+				}
+			}
 
 			console.log(rs.data);
 			console.log(rs.data[0]);

@@ -27,7 +27,7 @@ module.exports = {
 	},
 	'fallback': (conv) => {
 		conv.ask(fallbacks[Math.floor(Math.random()* fallbacks.length)]);
-		console.log('in help');
+		console.log('in falback');
 		console.log(conv.data.myContext);
 		if(conv.data.myContext == null){
 			conv.data.myContext = CONTEXTS.menu.name;	

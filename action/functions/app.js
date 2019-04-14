@@ -17,8 +17,10 @@ const askForSignIn = require('./intents/ask-for-sign-in');
 const create = require('./intents/create');
 const playback = require('./intents/playback');
 const startUp = require('./intents/startup');
+const abort = require('./intents/abort');
 const go_to_menu = require('./intents/go_to_menu');
 const list_teams = require('./intents/list_teams');
+const select_team = require('./intents/select_team');
 const create_team = require('./intents/create_team');
 const check_invites = require('./intents/check_invites');
 const fallback = require('./intents/fallback');
@@ -44,10 +46,12 @@ addIntents(
   askForSignIn,
 	startUp,
   create,
+  abort,
   fallback,
   create_team,
   check_invites,
   list_teams,
+  select_team,
   go_to_menu,
   playback
 );
