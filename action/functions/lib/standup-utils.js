@@ -1,5 +1,6 @@
 const strings = require('./strings');
-
+const fuzz = require('fuzzball');
+const CONTEXTS = require('../lib/app-contexts');
 const prompts = strings.prompts;
 
 module.exports = {
@@ -37,12 +38,67 @@ module.exports = {
 	
 	},
 	'getTodaysDate' : () => {
-	
+		var today = new Date();
+		console.log(today);
+		var dd = String(today.getDate()).padStart(2, '0');
+		var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+		var yyyy = today.getFullYear();
+		const date = yyyy+'-'+mm+'-'+dd;	
+		return date;
 	},
 	'teamValidation' : (conv, team_name) => {
-			
+		if(conv.data.db_teams.length == 1){
+			conv.data.current_team = db_teams[0];
+			return true;
+		}
+
+		if(team_name == null || team_name == ''){
+			conv.contexts.set(CONTEXTS.select_team.name, 1);
+			return false;
+		}
+		console.log(team_name);
+		var teams = [];
+		for(const team of conv.data.db_teams) {
+			teams.push(team.teamName);
+		}
+		const results = fuzz.extract(team_name, teams);
+		console.log(results);
+		const best_match = results[0];
+		if(best_match[1] < 40)
+			return false;
+		for(const team of conv.data.db_teams){
+			if(team.teamName == best_match[0]){
+				conv.data.current_team = team
+				return true;
+			}
+		}
+		
 	},
 	'matchTeamMember' : (params) => {
+		if(conv.data.db_teams.length == 1){
+			conv.data.current_team = db_teams[0];
+			return true;
+		}
+
+		if(team_name == null){
+			conv.contexts.set(CONTEXTS.select_team, 1);
+			return false;
+		}
+
+		var teams = [];
+		for(const team of conv.data.db_teams) {
+			teams.push(team.teamName);
+		}
+		const results = fuzz.extract(team_name, teams);
+		console.log(results);
+		const best_match = results[0];
+		for(const team of conv.data.db_teams){
+			if(team.teamName == best_match[0]){
+				conv.data.current_team = team
+				return true;
+			}
+		}
+		
 	
 	},
 	

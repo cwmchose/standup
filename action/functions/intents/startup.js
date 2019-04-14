@@ -7,6 +7,7 @@ const strings = require('../lib/strings');
 
 module.exports = {
 	'start_up' : async (conv) => {
+		conv.contexts.set('abort_context' , 99);
 
 		console.log('in start up');
 		console.log(conv.user.profile.payload);

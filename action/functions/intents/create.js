@@ -11,7 +11,7 @@ const {
 const axios = require('axios');
 const backend = 'http://capstone-env.ruehm2cvrs.us-east-2.elasticbeanstalk.com/api/'
 const CONTEXTS = require('../lib/app-contexts');
-const test_data = require('../lib/test-data');
+const templates = require('../lib/test-data');
 const utils  = require('../lib/standup-utils');
 const strings = require('../lib/strings');
 
@@ -33,21 +33,38 @@ module.exports = {
 	//
 	//	if not, the user should begin making a stand up 
 	'create_standup': async (conv, params) => {
-		const teamValidation = utils.teamValidation(conv,params.team_name); 
-		if(teamValidation != null){
-			return conv.ask(teamValidation);
+		conv.data.current_action = 'creating a stand up.';
+		console.log(params);
+		conv.data.myContext = CONTEXTS.today;
+		if(!conv.data.team_selected){
+		const found_team = utils.teamValidation(conv,params.team_name); 
+			if(!found_team){
+				return conv.ask(utils.getPrompt(conv, 'select_team', conv.data.db_teams));
+			}
 		}
-		
 		//team selected
 		const today = utils.getTodaysDate();
+		console.log('today: ' + today);
+		conv.data.entry = templates.entry;
+		const payload = conv.user.profile.payload;
+		const email = payload.email; 
+	
 		try{
 			//get entry from db for team for today
-			const todays_entries = [];
-			var entry = utils.getEntryForTeam(todays_entries);
+			const rs = await axios.get(backend+'entry/' + today + '/' + 
+				conv.data.current_team.teamName );
+			const todays_entries = rs.data;
+			var entry = '';
+			for(const standup of todays_entries){
+				if(standup.team.teamName == conv.data.current_team){
+
+				}	
+			}
 			if(entry){
+				conv.data.update = 1;
 				conv.data.entry = entry;
-				conv.data.myContext = CONTEXTS.already_existing;
-				conv.contexts.set(CONTEXTS.already_existing.name, 1);
+				conv.data.myContext = CONTEXTS.submit_review;
+				conv.contexts.set(CONTEXTS.submit_review.name, 1);
 				conv.contexts.set(CONTEXTS.today.name, 0);
 				return conv.ask(utils.getPrompt(
 					conv, 'already_existing', conv.data.current_team));
@@ -55,7 +72,7 @@ module.exports = {
 		}catch(error){
 			return conv.ask(utils.getPrompt(conv, 'http_error'));
 		}
-		conv.data.myContext = CONTEXTS.today;
+		conv.data.update = 0;
 		conv.contexts.set(CONTEXTS.today.name, 1);
 		return conv.ask(utils.getPrompt(conv, 'today'));
 	},
@@ -210,9 +227,13 @@ module.exports = {
 		console.log(conv.data);
 		//post standup entry
 		try{
-			//var rs = await axios.post(backend + 'entry', conv.data.entry)
+			var rs = '';
+			if(conv.data.update)
+				rs = await axios.post(backend + 'entry/' + conv.data.entry.standupEntryID, conv.data.entry);
+			
+			rs = await axios.post(backend + 'entry', conv.data.entry);
 			console.log('swell');
-			//console.log(rs);
+			console.log(rs);
 			return conv.ask("Your stand up was saved successfully.");
 		} catch(error) {
 			console.log('yikes');
