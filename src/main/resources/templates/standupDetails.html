@@ -25,13 +25,29 @@
             </div>
     </nav>
 
-	<div class="container">
-        <div class="bg-white rounded shadow-sm p-3 mt-5 mb-5">
-            <h1 th:text="${standup.team.teamName} + ' : ' + ${standup.date}" />
-            
-        </div>
-
-	</div>
+    <div class="container">
+      <div class="bg-white rounded shadow-sm p-3 mt-5 mb-5">
+          <h1 th:text="${standup.team.teamName} + ' : ' + ${standup.date}" />
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <td>Team Member</td>
+                <td>What did I do today?</td>
+                <td>What am I going to do tomorrow?</td>
+                <td>What is currently blocking me?</td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="entry: ${standup.standups}">
+                <td th:text="${entry.user.firstName + ' ' + entry.user.lastName}" />
+                <td th:text="${entry.todayText}" />
+                <td th:text="${entry.tomorrowText}" />
+                <td th:text="${entry.blockingText}" />
+              </tr>
+            </tbody>
+          </table>
+      </div>
+</div>
 
 
 
