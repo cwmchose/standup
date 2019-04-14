@@ -45,7 +45,7 @@
               </tr>
           </thead>
           <tbody>
-              <tr th:each="team : ${teams}" style="cursor: pointer" th:data-parameter1="${team.teamName}" onclick="rowClicked(this.getAttribute('data-parameter1'));">
+              <tr th:each="team : ${teams}" style="cursor: pointer" th:data-parameter1="${team.teamID}" onclick="rowClicked(this.getAttribute('data-parameter1'));">
                   <td th:text="${team.teamName}"></td>
               </tr>
           </tbody>
@@ -98,6 +98,10 @@
 
           function buttonClicked() {
             $('#teamModal').modal('toggle');
+          }
+
+          function rowClicked(value){
+            location.href = "modifyTeam/" +  value;
           }
 
           function saveTeam() {

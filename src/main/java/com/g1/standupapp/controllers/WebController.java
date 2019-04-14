@@ -550,4 +550,11 @@ public class WebController{
 	public String invites(Model model, Principal principal){
 		return "invites";
 	}
+
+	@GetMapping("modifyTeam/{teamID}")
+	public String modifyTeam(Model model, Principal principal, @PathVariable(value="teamID") Long teamID){
+		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
+		model.addAttribute("team", teamRepository.findById(teamID).get());
+		return "modifyTeam";
+	}
 }
