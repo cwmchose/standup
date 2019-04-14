@@ -110,6 +110,7 @@ public class WebController{
 		user.setLastName(userDetails.getLastName());
 		user.setTeams(userDetails.getTeams());
 		user.setEmail(userDetails.getEmail());
+		user.setInvites(userDetails.getInvites());
 
 		User updatedUser = userRepository.save(user);
 		return updatedUser;
@@ -342,6 +343,7 @@ public class WebController{
 		cole.setLastName("McHose");
 		cole.setEmail("cole.mchose@gmail.com");
 		cole.setTeams(new HashSet<>());
+		cole.setInvites(new HashSet<>());
 		userRepository.save(cole);
 
 		Team dummyTeam = new Team();
@@ -356,6 +358,7 @@ public class WebController{
 		ed.setLastName("Villarreal");
 		ed.setEmail("eivillarreal@mix.wvu.edu");
 		ed.setTeams(new HashSet<>());
+		ed.setInvites(new HashSet<>());
 		userRepository.save(ed);
 		userSet.add(ed);
 
@@ -364,6 +367,7 @@ public class WebController{
 		tony.setLastName("Bag-O-Donuts");
 		tony.setEmail("ajdt703@gmail.com");
 		tony.setTeams(new HashSet<>());
+		tony.setInvites(new HashSet<>());
 		userRepository.save(tony);
 		userSet.add(tony);
 
@@ -569,6 +573,9 @@ public class WebController{
 
 	@GetMapping("invites")
 	public String invites(Model model, Principal principal){
+		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
+		User currentUser = userRepository.findByEmail(test.getPrincipal().getAttributes().get("email").toString()).get();
+		model.addAttribute("user", currentUser);
 		return "invites";
 	}
 

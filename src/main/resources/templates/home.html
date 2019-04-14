@@ -25,11 +25,19 @@
     </nav>
 
   <div>
-      <h3 class = "text-center mt-3" th:text="'Hello ' + ${name}"/>
+      <h3 class = "text-center mt-3" th:text="'Hello ' + ${name}"></h3>
       <h3 class = "text-center mt-3">
         Welcome to the your homepage!
       </h3>
   </div>
+
+  <!-- image example -->
+  <div id="image">
+    <p>
+      <img class="rounded mx-auto d-block" alt="no duck found" th:src="@{/img/duck.jpg}"/>
+    </p>
+  </div>
+
   <!-- <a href="/web/userList">List of all users</a> -->
 
     <!-- Optional JavaScript -->

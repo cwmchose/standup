@@ -12,22 +12,36 @@
   </head>
   <body class = "bg-light">
 
-        <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
-                <a class="navbar-brand" href="#">Capstone</a>
-                  <div class="navbar-nav">
-                    <a class="nav-item nav-link " href="/web/home">Home</a>
-                    <a class="nav-item nav-link" href="/web/teamList">Teams</a>
-                    <a class="nav-item nav-link" href="/web/manageTeams">Manage Teams</a>
-                    <a class="nav-item nav-link " href="/web/profile">Profile</a>
-                  </div>
-                  <div class="navbar-nav ml-auto">
-                          <a class="nav-item nav-link mr-auto active" href="/web/invites">Invites<span class="sr-only">(current)</span></a>
-                      </div>
-              </nav>
+    <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">Capstone</a>
+              <div class="navbar-nav">
+                <a class="nav-item nav-link " href="/web/home">Home</a>
+                <a class="nav-item nav-link" href="/web/teamList">Teams</a>
+                <a class="nav-item nav-link" href="/web/manageTeams">Manage Teams</a>
+                <a class="nav-item nav-link " href="/web/profile">Profile</a>
+              </div>
+              <div class="navbar-nav ml-auto">
+                      <a class="nav-item nav-link mr-auto active" href="/web/invites">Invites<span class="sr-only">(current)</span></a>
+              </div>
+          </nav>
 
 	<div class="container">
         <div class="bg-white rounded shadow-sm p-3 mt-5 mb-5">
-            <p>invites</p>
+            <h3 class="text-center">Available Invites</h3>
+            <table id="invites" class="table table-striped table-responsive-md">
+              <thead>
+                  <tr>
+                    <th>Team Name</th>
+                    <th>Date</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr th:each="invite : ${user.invites}" style="cursor: pointer" th:data-parameter1="${user.userID}" th:data-parameter2="${invite.teamID}" onclick="rowClicked(this.getAttribute('data-parameter1'),this.getAttribute('data-parameter2'));">
+                      <td th:text="${invite.teamName}"></td>
+                      <td th:text="${invite.date}"></td>
+                  </tr>
+              </tbody>
+            </table>
         </div>
 
 	</div>
