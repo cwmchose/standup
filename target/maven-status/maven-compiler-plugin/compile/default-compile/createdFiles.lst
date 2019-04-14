@@ -1,7 +1,7 @@
+com/g1/standupapp/StandupappApplication.class
 com/g1/standupapp/controllers/TestController.class
 com/g1/standupapp/repositories/StandupRepository.class
-AlexaController.class
-com/g1/standupapp/StandupappApplication.class
 com/g1/standupapp/SecurityConfig.class
 com/g1/standupapp/models/Standup.class
 com/g1/standupapp/controllers/GoogleAssistantController.class
+AlexaController.class
