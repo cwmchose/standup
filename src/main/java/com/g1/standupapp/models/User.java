@@ -29,21 +29,22 @@ public class User implements Comparable<User>{
     @JsonBackReference
     private Set<Team> teams = new HashSet<Team>();
 
-    // @OneToMany(
-    //     mappedBy = "user",
-    //     cascade = CascadeType.ALL
-    // )
-    // private Set<Invite> invites = new HashSet<Invite>();
+    @OneToMany(
+        mappedBy = "user",
+        cascade = CascadeType.ALL
+    )
+    private Set<Invite> invites = new HashSet<Invite>();
 
     public User(){
         super();
     }
 
-    public User(String email, String firstName, String lastName, Set<Team> teams){
+    public User(String email, String firstName, String lastName, Set<Team> teams, Set<Invite> invites){
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
         this.teams = teams;
+        this.invites = invites;
     }
     
     public Long getUserID() {
@@ -80,6 +81,14 @@ public class User implements Comparable<User>{
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public Set<Invite> getInvites() {
+        return this.invites;
+    }
+
+    public void setInvites(Set<Invite> invites) {
+        this.invites = invites;
     }
 
 	@Override
