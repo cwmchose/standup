@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "User")
-public class User{
+public class User implements Comparable<User>{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -28,6 +28,12 @@ public class User{
     @ManyToMany(mappedBy = "users", fetch = FetchType.LAZY)
     @JsonBackReference
     private Set<Team> teams = new HashSet<Team>();
+
+    // @OneToMany(
+    //     mappedBy = "user",
+    //     cascade = CascadeType.ALL
+    // )
+    // private Set<Invite> invites = new HashSet<Invite>();
 
     public User(){
         super();
@@ -75,5 +81,11 @@ public class User{
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
+
+	@Override
+	public int compareTo(User user) {
+        String name = lastName + ", " + firstName;
+		return name.compareTo(user.getLastName() + ", " + user.getFirstName());
+	}
 
 }

@@ -79,12 +79,13 @@ public class APIController{
 
 	@RequestMapping(value = "/user", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public User saveUser(@Valid @RequestBody User user) {
+	public ResponseEntity<?> saveUser(@Valid @RequestBody User user) {
 		if(userRepository.findByEmail(user.getEmail()).isPresent()){
-			return null;
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User with that email is already present");
 		}
 		else{
-			return userRepository.save(user);
+			userRepository.save(user);
+			return ResponseEntity.ok().build();
 		}
 	}
 
@@ -98,6 +99,7 @@ public class APIController{
 			
 	}
 
+	// fix
 	@RequestMapping(value = "/user/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public User updateUser(@PathVariable(value = "id") Long userId, @Valid @RequestBody User userDetails) {
@@ -125,7 +127,7 @@ public class APIController{
 			return ResponseEntity.ok().build();
 		}
 		else{
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User not found");
 		}
 	}
 	//// End of User CRUD
@@ -141,12 +143,13 @@ public class APIController{
 
 	@RequestMapping(value = "/team", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public Team saveTeam(@Valid @RequestBody Team team) {
+	public ResponseEntity<?> saveTeam(@Valid @RequestBody Team team) {
 		if(teamRepository.findByTeamName(team.getTeamName()).isPresent()){
-			return null;
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Team by that name is already present");
 		}
 		else{
-			return teamRepository.save(team);
+			teamRepository.save(team);
+			return ResponseEntity.ok().build();
 		}
     	
 	}
@@ -159,6 +162,7 @@ public class APIController{
 		return null;
 	}
 
+	// fix
 	@RequestMapping(value = "/team/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Team updateTeam(@PathVariable(value = "id") Long teamId, @Valid @RequestBody Team teamDetails) {
@@ -187,7 +191,7 @@ public class APIController{
 			return ResponseEntity.ok().build();
 		}
 		else{
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Team not found");
 		}
 	}
 	//// End of Team CRUD
@@ -203,28 +207,27 @@ public class APIController{
 
 	@RequestMapping(value = "/entry", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<Object> saveStandupEntry(@Valid @RequestBody StandupEntry standupEntry) {
+	public ResponseEntity<?> saveStandupEntry(@Valid @RequestBody StandupEntry standupEntry) {
 		if(!standupEntryRepository.findByDateAndTeam_TeamNameAndUser_Email(standupEntry.getDate(), standupEntry.getTeam().getTeamName(), standupEntry.getUser().getEmail()).isPresent()){
-			standupEntryRepository.save(standupEntry);
 			if(standupRepository.findByDateAndTeam_TeamName(standupEntry.getDate(),standupEntry.getTeam().getTeamName()).isPresent()){	
 				Standup standup = standupRepository.findByDateAndTeam_TeamName(standupEntry.getDate(),standupEntry.getTeam().getTeamName()).get();
-				Set <StandupEntry> entrySet = standup.getStandups();
-				entrySet.add(standupEntry);
-				standupRepository.save(standup);
+				standupEntry.setStandup(standup);
+				standupEntryRepository.save(standupEntry);
 			}
 			else{
 				Standup standup = new Standup();
 				standup.setDate(standupEntry.getDate());
 				standup.setTeam(standupEntry.getTeam());
-				Set <StandupEntry> entrySet = new HashSet<>();
-				entrySet.add(standupEntry);
+				Set <StandupEntry> entrySet = new HashSet<StandupEntry>();
 				standup.setStandups(entrySet);
 				standupRepository.save(standup);
+				standupEntry.setStandup(standup);
+				standupEntryRepository.save(standupEntry);
 			}
 			return ResponseEntity.ok().build();
 		}
 		else
-			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("An entry for this date already exists");
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Entry for date already found");
 	}
 
 	@RequestMapping(value = "/entry/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -236,6 +239,7 @@ public class APIController{
 			return null;
 	}
 
+	// fix
 	@RequestMapping(value = "/entry/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public StandupEntry updateStandupEntry(@PathVariable(value = "id") Long standupEntryId, @Valid @RequestBody StandupEntry standupEntryDetails) {
@@ -262,7 +266,7 @@ public class APIController{
 			return ResponseEntity.ok().build();
 		}
 		else{
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Entry not found");
 		}
 
 	}
@@ -279,11 +283,12 @@ public class APIController{
 
 	@RequestMapping(value = "/standup", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public Standup saveStandup(@Valid @RequestBody Standup standup) {
+	public ResponseEntity<?> saveStandup(@Valid @RequestBody Standup standup) {
 		if(standupRepository.findByDateAndTeam_TeamName(standup.getDate(), standup.getTeam().getTeamName()).isPresent())
-			return null;
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Standup for date and team already found");
 		else
-    		return standupRepository.save(standup);
+			standupRepository.save(standup);
+			return ResponseEntity.ok().build();
 }
 
 	@RequestMapping(value = "/standup/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -304,7 +309,6 @@ public class APIController{
 		standup.setDate(standupDetails.getDate());
 		standup.setTeam(standupDetails.getTeam());
 		standup.setStandups(standupDetails.getStandups());
-
 		Standup updatedStandup = standupRepository.save(standup);
 		return updatedStandup;
 	}
@@ -318,7 +322,7 @@ public class APIController{
 			return ResponseEntity.ok().build();
 		}
 		else{
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Standup not found");
 		}
 	}
 	//// End of Standup CRUD
@@ -338,7 +342,7 @@ public class APIController{
 		userRepository.save(cole);
 
 		Team dummyTeam = new Team();
-		dummyTeam.setScrumMasterEmail("cole.mchose@gmail.com");
+		dummyTeam.setScrumMasterEmail("eivillarreal@mix.wvu.edu");
 		dummyTeam.setTeamName("Alpha Team");
 		dummyTeam.setDescription("Our goal is to build a working capstone.");
 		Set<User> userSet = new HashSet<User>();
@@ -398,6 +402,7 @@ public class APIController{
 		return "OwO what's this";
 	}
 
+	// fix
 	@RequestMapping(value = "user/email/{email}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public User getUserByEmail(@PathVariable(value = "email") String email){
@@ -409,40 +414,51 @@ public class APIController{
 
 	@RequestMapping(value = "user/{email}/add/{teamName}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public Team addUserToTeam(@PathVariable(value = "email") String email, @PathVariable(value = "teamName") String teamName){
-		User user = getUserByEmail(email);
-		if(user != null){
+	public ResponseEntity<?> addUserToTeam(@PathVariable(value = "email") String email, @PathVariable(value = "teamName") String teamName){
+		if(userRepository.findByEmail(email).isPresent()){
+			User user = userRepository.findByEmail(email).get();
 			if(teamRepository.findByTeamName(teamName).isPresent()){
 				Team team = teamRepository.findByTeamName(teamName).get();
-				Set<User> users = team.getUsers();
-				users.add(user);
-				team.setUsers(users);
-				teamRepository.save(team);
-				return team;
+				if(!team.getUsers().contains(user)){
+					Set<User> users = team.getUsers();
+					users.add(user);
+					team.setUsers(users);
+					teamRepository.save(team);
+					return ResponseEntity.ok().build();
+				}
+				else
+					return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User already present");
 			}
 			else
-				return null;
+				return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Team not found");
 		}
-		return null;
+		else
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User not found");
+		
 	}
 
-	@RequestMapping(value = "user/{email}/add/{teamName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "user/{email}/remove/{teamName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public User deleteUserFromTeam(@PathVariable(value = "email") String email, @PathVariable(value = "teamName") String teamName){
-		User user = getUserByEmail(email);
-		if(user != null){
+	public ResponseEntity<?> deleteUserFromTeam(@PathVariable(value = "email") String email, @PathVariable(value = "teamName") String teamName){
+		if(userRepository.findByEmail(email).isPresent()){
+			User user = userRepository.findByEmail(email).get();
 			if(teamRepository.findByTeamName(teamName).isPresent()){
 				Team team = teamRepository.findByTeamName(teamName).get();
+				if(team.getUsers().contains(user)){
 				Set<User> users = team.getUsers();
-				users.remove(user);
-				team.setUsers(users);
-				teamRepository.save(team);
-				return user;
+					users.remove(user);
+					team.setUsers(users);
+					teamRepository.save(team);
+					return ResponseEntity.ok().build();				
+				}
+				else
+					return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User not a member");
 			}
 			else
-				return null;
+				return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Team not found");
 		}
-		return null;
+		else
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User not found");
 	}
 
 	//yyyy-mm-dd
@@ -481,5 +497,4 @@ public class APIController{
 	public List<Team> getTeamsByUser(@PathVariable(value = "email") String email){
 		return teamRepository.findByUsers_Email(email);
 	}
-
 }

@@ -26,7 +26,7 @@ public class Standup{
 
     @OneToMany(
         mappedBy = "standup",
-        cascade = CascadeType.ALL
+        cascade = {CascadeType.MERGE, CascadeType.REMOVE}
     )
     private Set<StandupEntry> standups;
 
