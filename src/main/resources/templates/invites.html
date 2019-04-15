@@ -79,7 +79,7 @@
         if(confirm("Are you sure you want to decline?")){
           $.ajax({
                 url : 'http://capstone-env.ruehm2cvrs.us-east-2.elasticbeanstalk.com/api/invite/decline/'+ value2,
-                type : 'PUT',
+                type : 'DELETE',
                 success : function(data) {      
                     location.reload();        
                 },
