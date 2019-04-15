@@ -35,18 +35,18 @@
             
             <div class="row justify-content-end text-center mb-1">
                 <div class="col-4">
-                    <button id="deleteButton" class="btn btn-danger float-left" th:data-parameter1="${team.teamID}" onclick="deleteClicked(this.getAttribute('data-parameter1'))">Delete Team</button>
+                    <button id="deleteButton" class="btn btn-outline-danger float-left" th:data-parameter1="${team.teamID}" onclick="deleteClicked(this.getAttribute('data-parameter1'))">Delete Team</button>
                 </div>
                 <h3 class="col-4" th:text="${team.teamName}+' Membership'"></h3>
                 <div class="col-4">
-                    <button id="addButton" class="btn btn-primary float-right" onclick="addClicked()">Add Member</button>
+                    <button id="addButton" class="btn btn-outline-primary float-right" onclick="addClicked()">Add Member</button>
                 </div>
             </div>
             <div class="container" th:each="user : ${sortedList}">
                 <div th:id="'row'+${user.userID}" class="row light-gray border align-items-center rounded py-2 my-2">
                         <h5 class="col-6" th:text="${user.lastName} + ', ' + ${user.firstName}"></h5>
                         <div class="col-6">
-                                <button id="removeButton" class="btn btn-secondary float-right" th:data-parameter1="${user.email}" th:data-parameter2="${team.teamName}" th:data-parameter3="${user.userID}" onclick="removeClicked(this.getAttribute('data-parameter1'),this.getAttribute('data-parameter2'),this.getAttribute('data-parameter3'));">Remove</button>
+                                <button id="removeButton" class="btn btn-outline-dark secondary float-right" th:data-parameter1="${user.email}" th:data-parameter2="${team.teamName}" th:data-parameter3="${user.userID}" onclick="removeClicked(this.getAttribute('data-parameter1'),this.getAttribute('data-parameter2'),this.getAttribute('data-parameter3'));">Remove</button>
                         </div>
                 </div>
             </div>

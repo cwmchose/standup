@@ -27,10 +27,10 @@
 
 	<div class="container">
         <div class="bg-white rounded shadow-sm p-3 mt-5 mb-5">
-            <h1 class="d-inline-block" th:text="${team.teamName}"/>
-            <button type="button" class="btn btn-primary float-right" onclick="buttonClicked();">Add Entry</button>
-            <h6 th:text="'Scrum Master: ' + ${scrumMaster}"/>
-            <h6 th:text="'Details: ' + ${team.description}"/>
+            <h1 class="d-inline-block" th:text="${team.teamName}"></h1>
+            <button type="button" class="btn btn-outline-primary float-right" onclick="buttonClicked();">Add Entry</button>
+            <h6 th:text="'Scrum Master: ' + ${scrumMaster}"></h6>
+            <h6 th:text="'Details: ' + ${team.description}"></h6>
             
         </div>
         <div class="bg-white rounded shadow-sm p-3 mt-5 mb-5">
@@ -79,8 +79,8 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                  <button type="button" class="btn btn-primary" onclick="saveEntry();">Save</button>
+                  <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-outline-primary" onclick="saveEntry();">Save</button>
                 </div>
               </div>
             </div>
