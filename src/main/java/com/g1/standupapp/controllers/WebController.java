@@ -612,6 +612,30 @@ public class WebController{
 		return teamRepository.findByUsers_Email(email);
 	}
 
+
+	@RequestMapping(value = "invite/{userEmail}/team/{teamName}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> inviteToTeam(@PathVariable(value = "userEmail") String userEmail, @PathVariable(value = "teamName") String teamName){
+			if(userRepository.findByEmail(userEmail).isPresent()){
+				User user = userRepository.findByEmail(userEmail).get();
+				if(teamRepository.findByTeamName(teamName).isPresent()){
+					Team team = teamRepository.findByTeamName(teamName).get();
+					if(!team.getUsers().contains(user)){
+						Invite invite = new Invite();
+						invite.setTeamName(teamName);
+						invite.setUser(user);
+						inviteRepository.save(invite);
+						return ResponseEntity.ok().build();
+					}
+					else
+						return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User already a member");	
+				}
+				else
+					return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Team not found");
+			}
+			else
+				return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User not found");
+	}
 	/////////// Thymeleaf Views
 
 	// List of all users

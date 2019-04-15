@@ -128,7 +128,7 @@
 
         function saveMember(value1){
             $.ajax({
-                url : 'http://capstone-env.ruehm2cvrs.us-east-2.elasticbeanstalk.com/api/user/'+$('#userEmail').val()+'/add/'+ value1,
+                url : 'http://capstone-env.ruehm2cvrs.us-east-2.elasticbeanstalk.com/web/invite/'+$('#userEmail').val()+'/team/'+ value1,
                 type : 'PUT',
                 success : function(data) {      
                     location.reload();        

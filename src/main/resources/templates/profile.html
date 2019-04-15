@@ -55,9 +55,7 @@
   <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
   <script src = "https://cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
   <script th:inline="javascript">
-     $(document).ready(function () {
-            $('#Table').DataTable();
-     });
+
      function buttonClicked() {
       var user = /*[[${user}]]*/ null;
       user.firstName = $('#firstName').val();
@@ -69,13 +67,12 @@
         headers: {
           'Content-Type': 'application/json'
         },
-        dataType:'application/json',
         success : function(data) {              
-          alert('Data: '+ data);
+          location.reload();
         },
         error : function(request,error)
         {
-          alert("Request: "+JSON.stringify(request));
+          alert(+JSON.stringify(request.responseText));
         }
       });
     }
