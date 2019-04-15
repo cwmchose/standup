@@ -15,15 +15,8 @@
   <body class = "bg-light">
 
   <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
-      <a class="navbar-brand" href="#">Capstone</a>
+      <a class="navbar-brand" href="">Capstone</a>
         <div class="navbar-nav">
-          <a class="nav-item nav-link active" href="/web/home">Home <span class="sr-only">(current)</span></a>
-          <a class="nav-item nav-link" href="/web/teamList">Teams</a>
-          <a class="nav-item nav-link" href="/web/manageTeams">Manage Teams</a>
-          <a class="nav-item nav-link" href="/web/profile">Profile</a>
-        </div>
-        <div class="navbar-nav ml-auto">
-                <a class="nav-item nav-link mr-auto" href="/web/invites">Invites</a>
         </div>
     </nav>
 
@@ -40,7 +33,7 @@
           <h1 class="mb-3">Standup Assistant</h1>
           <p class="lead">This web application is designed as a supplemental tool to be used in conjunction with our Google Assistant action in order to record, review, and maintain daily standups for your teams.</p>
           <p class="lead mb-4">It was created using Spring Boot, Bootstrap CSS, and jQuery. The application is currently hosted on Amazon Web Services. You are able to manage and view daily standups across multiple teams from individual team members. Below, you can sign in and registe with your Google account.</p>
-          
+          <button onclick="redirect()" type="button" class="btn btn-outline-secondary">Sign in with Google</button>
         </div>
       </div>
   </div>
@@ -57,43 +50,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
-  <script th:inline="javascript">
-    
-    $(document).ready(function () {
-      var auth2 = /*[[${auth}]]*/ 'null';
-      $.ajax({
-        url : 'http://capstone-env.ruehm2cvrs.us-east-2.elasticbeanstalk.com/api/user/' + auth2.email + '/email/',
-        type : 'GET',
-        success : function(data) {
-          if(!$.trim(data)) {
-            createUser(auth2);
-          }
-        },
-        error : function(request,error) {
-          alert(request.responseText);
-        }
-      });
-    });
-
-    function createUser(auth2) {
-      var user = {"email":auth2.email, "firstName":auth2.given_name, "lastName":auth2.family_name, "teams":[], "invites":[]}
-      $.ajax({
-        url : 'http://capstone-env.ruehm2cvrs.us-east-2.elasticbeanstalk.com/api/user/',
-        type : 'POST',
-        data: JSON.stringify(user),
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        success : function(data) {
-          console.log(data);
-        },
-        error : function(request,error) {
-          alert(request.responseText);
-        }
-      });
+  <script>
+    function redirect() {
+        location.href = "/web/home";
     }          
   </script>
-
+  
   <style>
     .footer {
       font-size: 24px;
