@@ -474,7 +474,7 @@ public class WebController{
 		return "OwO what's this";
 	}
 
-	@RequestMapping(value = "user/email/{email}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "user/{email}/email", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public User getUserByEmail(@PathVariable(value = "email") String email){
 		if(userRepository.findByEmail(email).isPresent())

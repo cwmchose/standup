@@ -91,7 +91,7 @@
         function deleteClicked(value1){
             if (confirm('Are you sure you want to delete this team?')) {
                 $.ajax({
-                url : 'http://localhost:5000/api/team/'+value1,
+                url : 'http://capstone-env.ruehm2cvrs.us-east-2.elasticbeanstalk.com/api/team/'+value1,
                 type : 'DELETE',
                 success : function(data) {              
                     location.href="../manageTeams";
@@ -108,7 +108,7 @@
         function removeClicked(value1, value2, value3){
             if (confirm('Are you sure you want to remove this user?')) {
                 $.ajax({
-                url : 'http://localhost:5000/api/user/'+value1+'/remove/'+value2,
+                url : 'http://capstone-env.ruehm2cvrs.us-east-2.elasticbeanstalk.com/api/user/'+value1+'/remove/'+value2,
                 type : 'DELETE',
                 success : function(data) {              
                 },
@@ -128,7 +128,7 @@
 
         function saveMember(value1){
             $.ajax({
-                url : 'http://localhost:5000/api/user/'+$('#userEmail').val()+'/add/'+ value1,
+                url : 'http://capstone-env.ruehm2cvrs.us-east-2.elasticbeanstalk.com/api/user/'+$('#userEmail').val()+'/add/'+ value1,
                 type : 'PUT',
                 success : function(data) {      
                     location.reload();        

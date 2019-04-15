@@ -97,7 +97,6 @@ public class APIController{
 			return userRepository.findById(userId).get();
 		else
 			return null;
-			
 	}
 
 	// fix
@@ -405,13 +404,6 @@ public class APIController{
 		cole.setInvites(new HashSet<>());
 		userRepository.save(cole);
 
-		Team dummyTeam = new Team();
-		dummyTeam.setScrumMasterEmail("cole.mchose@gmail.com");
-		dummyTeam.setTeamName("Alpha Team");
-		dummyTeam.setDescription("Our goal is to build a working capstone.");
-		Set<User> userSet = new HashSet<User>();
-		userSet.add(cole);
-
 		User ed = new User();
 		ed.setFirstName("Edgar");
 		ed.setLastName("Villarreal");
@@ -420,11 +412,6 @@ public class APIController{
 		ed.setInvites(new HashSet<>());
 		userRepository.save(ed);
 
-		Invite invite = new Invite();
-		invite.setTeamName("Alpha Team");
-		invite.setUser(ed);
-		inviteRepository.save(invite);
-
 		User tony = new User();
 		tony.setFirstName("Tony");
 		tony.setLastName("Bag-O-Donuts");
@@ -432,7 +419,20 @@ public class APIController{
 		tony.setTeams(new HashSet<>());
 		tony.setInvites(new HashSet<>());
 		userRepository.save(tony);
+
+		Team dummyTeam = new Team();
+		dummyTeam.setScrumMasterEmail("cole.mchose@gmail.com");
+		dummyTeam.setTeamName("Alpha Team");
+		dummyTeam.setDescription("Our goal is to build a working capstone.");
+		Set<User> userSet = new HashSet<User>();
+		userSet.add(cole);
+		userSet.add(ed);
 		userSet.add(tony);
+
+		Invite invite = new Invite();
+		invite.setTeamName("Alpha Team");
+		invite.setUser(cole);
+		inviteRepository.save(invite);
 
 		for(int i = 0; i<5; i++){
 			User dummy2 = new User();
@@ -472,7 +472,7 @@ public class APIController{
 		return "OwO what's this";
 	}
 
-	@RequestMapping(value = "user/email/{email}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "user/{email}/email", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public User getUserByEmail(@PathVariable(value = "email") String email){
 		if(userRepository.findByEmail(email).isPresent())

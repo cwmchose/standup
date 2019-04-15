@@ -61,7 +61,7 @@
       function acceptClicked(value2, value3){
         if(confirm("Are you sure you want to accept?")){
           $.ajax({
-                url : 'http://localhost:5000/api/invite/accept/'+ value2,
+                url : 'http://capstone-env.ruehm2cvrs.us-east-2.elasticbeanstalk.com/api/invite/accept/'+ value2,
                 type : 'PUT',
                 success : function(data) {      
                     location.reload();        
@@ -78,7 +78,7 @@
       function declineClicked(value2, value3){
         if(confirm("Are you sure you want to decline?")){
           $.ajax({
-                url : 'http://localhost:5000/api/invite/decline/'+ value2,
+                url : 'http://capstone-env.ruehm2cvrs.us-east-2.elasticbeanstalk.com/api/invite/decline/'+ value2,
                 type : 'PUT',
                 success : function(data) {      
                     location.reload();        

@@ -30,7 +30,7 @@ public class Team{
         name = "Team_Members",
         joinColumns = { @JoinColumn(name = "team_id") },
         inverseJoinColumns = { @JoinColumn(name = "user_id") })
-    private Set<User> users = new HashSet<User>();
+    private Set<User> users;
 
     public Team() {
         super();

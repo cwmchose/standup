@@ -15,7 +15,6 @@ public class StandupEntry{
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long standupEntryID;
 
-
     @ManyToOne
     @JoinColumn(name = "team_id")
     @JsonBackReference(value="teamReference")

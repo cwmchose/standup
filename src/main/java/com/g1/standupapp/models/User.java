@@ -27,13 +27,13 @@ public class User implements Comparable<User>{
 
     @ManyToMany(mappedBy = "users", fetch = FetchType.LAZY)
     @JsonBackReference
-    private Set<Team> teams = new HashSet<Team>();
+    private Set<Team> teams;
 
     @OneToMany(
         mappedBy = "user",
         cascade = {CascadeType.MERGE, CascadeType.REMOVE}
     )
-    private Set<Invite> invites = new HashSet<Invite>();
+    private Set<Invite> invites;
 
     public User(){
         super();
@@ -51,16 +51,8 @@ public class User implements Comparable<User>{
         return this.userID;
     }
 
-    public Set<Team> getTeams() {
-        return this.teams;
-    }
-
-    public void setTeams(Set<Team> teams) {
-        this.teams = teams;
-    }
-
     public String getEmail() {
-        return email;
+        return this.email;
     }
 
     public void setEmail(String email) {
@@ -68,7 +60,7 @@ public class User implements Comparable<User>{
     }
 
     public String getFirstName() {
-        return firstName;
+        return this.firstName;
     }
 
     public void setFirstName(String firstName) {
@@ -76,11 +68,19 @@ public class User implements Comparable<User>{
     }
 
     public String getLastName() {
-        return lastName;
+        return this.lastName;
     }
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public Set<Team> getTeams() {
+        return this.teams;
+    }
+
+    public void setTeams(Set<Team> teams) {
+        this.teams = teams;
     }
 
     public Set<Invite> getInvites() {
@@ -90,6 +90,7 @@ public class User implements Comparable<User>{
     public void setInvites(Set<Invite> invites) {
         this.invites = invites;
     }
+
 
 	@Override
 	public int compareTo(User user) {
