@@ -33,14 +33,21 @@ module.exports = {
 	//
 	//	if not, the user should begin making a stand up 
 	'create_standup': async (conv, params) => {
-		conv.data.current_action = 'creating a stand up.';
+		conv.data.current_action = 'creating a stand up. ';
+		console.log('in create');
 		console.log(params);
 		conv.data.myContext = CONTEXTS.today;
 		conv.data.for_select = 'create';	
-		if(!conv.data.team_selected){
-			const found_team = utils.teamValidation(conv,params.team_name); 
+		if(!conv.data.current_team){
+			const found_team = utils.teamValidation(conv, 
+				params.team_name); 
 				if(!found_team){
-					return conv.ask(utils.getPrompt(conv, 'select_team', conv.data.db_teams));
+					conv.contexts.set(CONTEXTS.select_team.name, 1);
+					return conv.ask(utils.getPrompt(conv, 
+						'select_team', conv.data.db_teams));
+				}
+				else{
+					conv.data.current_team = found_team;
 				}
 			}
 		//team selected

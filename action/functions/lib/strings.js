@@ -95,8 +95,8 @@ module.exports = {
 			}
 		},
 		'no_standup' : {
-			text: (team) => {
-				return 'Sorry, I didn\'t find any entries for ' + data.team + 
+			text: (data) => {
+				return 'Sorry, I didn\'t find any entries for ' + data.team.teamName + 
 					'for ' + data.date + '.';
 			}
 		},
@@ -185,7 +185,7 @@ module.exports = {
 		},
 		'team_selected': {
 			text: (data) => {
-				return 'Ok, ' + data.team + ' selected for ' + data.action + ' ';
+				return 'Ok, ' + data.team.teamName + ' selected for ' + data.action + ' ';
 			}
 		},
 		'select_team': {
