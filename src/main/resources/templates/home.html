@@ -41,6 +41,7 @@
           <p class="lead">This web application is designed as a supplemental tool to be used in conjunction with our Google Assistant action in order to record, review, and maintain daily standups for your teams.</p>
           <p class="lead mb-4">It was created using Spring Boot, Bootstrap CSS, and jQuery. The application is currently hosted on Amazon Web Services. You are able to manage and view daily standups across multiple teams from individual team members. Below, you can sign in and registe with your Google account.</p>
           <div class="g-signin2" data-onsuccess="onSignIn" align="center"></div>
+          <button onclick="signOut()">sign out homie</button>
         </div>
       </div>
   </div>
@@ -64,14 +65,12 @@
       $.ajax({
         url : 'http://localhost:5000/api/user/email/' + profile.getEmail(),
         type : 'GET',
-        data: JSON.stringify(profile.getEmail()),
-        headers: {
-          'Content-Type': 'application/json'
-        },
         success : function(data) {
-          if(data == null) {
-            createUser(profile)
-          }              
+          if(!$.trim(data)) {
+            createUser(profile);
+          } else {
+            console.log("swell");
+          }   
         },
         error : function(request,error) {
           alert(request.responseText);
@@ -81,7 +80,6 @@
 
     function createUser(userProfile) {
       var user = {"email":userProfile.getEmail(), "firstName":userProfile.getGivenName(), "lastName":userProfile.getFamilyName(), "teams":[], "invites":[]}
-
       $.ajax({
         url : 'http://localhost:5000/api/user/',
         type : 'POST',
@@ -90,15 +88,21 @@
           'Content-Type': 'application/json'
         },
         success : function(data) {
-          
+          console.log(data);
         },
         error : function(request,error) {
           alert(request.responseText);
         }
       });
+    }          
+  </script>
+  <script>
+    function signOut() {
+      var auth2 = gapi.auth2.getAuthInstance();
+      auth2.signOut().then(function () {
+        console.log('User signed out.');
+      });
     }
-
-          
   </script>
 
   <style>
