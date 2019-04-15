@@ -32,11 +32,16 @@
               <thead>
                   <tr>
                     <th>Team Name</th>
+                    <th></th>
                   </tr>
               </thead>
               <tbody>
-                  <tr th:each="invite : ${user.invites}" style="cursor: pointer" th:data-parameter1="${user.userID}" th:data-parameter2="${invite.teamName}" onclick="rowClicked(this.getAttribute('data-parameter1'),this.getAttribute('data-parameter2'));">
+                  <tr th:id="'row'+${invite.inviteID}" th:each="invite : ${user.invites}">
                       <td th:text="${invite.teamName}"></td>
+                      <td>
+                        <button type="button" class="btn btn-danger float-right mx-1" th:data-parameter2="${invite.inviteID}" th:data-parameter3="'row'+${invite.inviteID}" onclick="declineClicked(this.getAttribute('data-parameter2'),this.getAttribute('data-parameter3'));">decline</button>
+                        <button type="button" class="btn btn-primary float-right mx-1" th:data-parameter2="${invite.inviteID}" th:data-parameter3="'row'+${invite.inviteID}" onclick="acceptClicked(this.getAttribute('data-parameter2'),this.getAttribute('data-parameter3'));">accept</button>
+                      </td>
                   </tr>
               </tbody>
             </table>
@@ -52,6 +57,41 @@
     <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
     <script src = "https://cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
     <script>
+
+      function acceptClicked(value2, value3){
+        if(confirm("Are you sure you want to accept?")){
+          $.ajax({
+                url : 'http://localhost:5000/api/invite/accept/'+ value2,
+                type : 'PUT',
+                success : function(data) {      
+                    location.reload();        
+                },
+                error : function(request,error)
+                {
+                    alert(request.responseText);
+                }
+            });
+          $("#"+value3).remove();
+        }
+      }
+
+      function declineClicked(value2, value3){
+        if(confirm("Are you sure you want to decline?")){
+          $.ajax({
+                url : 'http://localhost:5000/api/invite/decline/'+ value2,
+                type : 'PUT',
+                success : function(data) {      
+                    location.reload();        
+                },
+                error : function(request,error)
+                {
+                    alert(request.responseText);
+                }
+            });
+          $("#"+value3).remove();
+        }
+      }
+
     </script>
 </body>
 </html>

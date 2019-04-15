@@ -1,41 +1,39 @@
 package com.g1.standupapp.controllers;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Set;
 import java.security.Principal;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.validation.Valid;
 
-import com.g1.standupapp.repositories.*;
-import com.g1.standupapp.models.*;
+import com.g1.standupapp.models.Invite;
+import com.g1.standupapp.models.Standup;
+import com.g1.standupapp.models.StandupEntry;
+import com.g1.standupapp.models.Team;
+import com.g1.standupapp.models.User;
+import com.g1.standupapp.repositories.InviteRepository;
+import com.g1.standupapp.repositories.StandupEntryRepository;
+import com.g1.standupapp.repositories.StandupRepository;
+import com.g1.standupapp.repositories.TeamRepository;
+import com.g1.standupapp.repositories.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.format.annotation.DateTimeFormat.ISO;
-import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 
 @Controller
 @RequestMapping("/api")
@@ -421,7 +419,7 @@ public class APIController{
 		ed.setTeams(new HashSet<>());
 		ed.setInvites(new HashSet<>());
 		userRepository.save(ed);
-		
+
 		Invite invite = new Invite();
 		invite.setTeamName("Alpha Team");
 		invite.setUser(ed);
@@ -451,7 +449,7 @@ public class APIController{
 		teamRepository.save(dummyTeam);
 
 		Standup standup = new Standup();
-		LocalDate localDate = LocalDate.now();
+		LocalDate localDate = LocalDate.now(ZoneId.of("America/New_York"));
 		standup.setDate(localDate);
 		standup.setTeam(dummyTeam);
 		Set<StandupEntry> standupSet = new HashSet<StandupEntry>();
@@ -532,6 +530,49 @@ public class APIController{
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User not found");
 	}
 
+	@RequestMapping(value = "invite/accept/{inviteID}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> acceptInviteFromTeam(@PathVariable(value = "inviteID") Long inviteID){
+		if(inviteRepository.findById(inviteID).isPresent()){
+			Invite invite = inviteRepository.findById(inviteID).get();
+			if(userRepository.findById(invite.getUser().getUserID()).isPresent()){
+				User user = userRepository.findById(invite.getUser().getUserID()).get();
+				if(teamRepository.findByTeamName(invite.getTeamName()).isPresent()){
+					Team team = teamRepository.findByTeamName(invite.getTeamName()).get();
+					if(!team.getUsers().contains(user)){
+						Set<User> users = team.getUsers();
+						users.add(user);
+						team.setUsers(users);
+						teamRepository.save(team);
+						inviteRepository.delete(invite);
+						return ResponseEntity.ok().build();
+					}
+					else
+						return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User already present");	
+				}
+				else
+					return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Team not found");
+			}
+			else
+				return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User not found");
+		}
+		else
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invite not found");
+	}
+
+	@RequestMapping(value = "invite/decline/{inviteID}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> deleteUserFromTeam(@PathVariable(value = "inviteID") Long inviteID){
+		if(inviteRepository.findById(inviteID).isPresent()){
+			Invite invite = inviteRepository.findById(inviteID).get();
+			inviteRepository.delete(invite);
+			return ResponseEntity.ok().build();
+		}
+		else
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invite not found");
+		
+	}
+
 	//yyyy-mm-dd
 	@RequestMapping(value = "standup/{date}/team/{teamName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
@@ -568,4 +609,5 @@ public class APIController{
 	public List<Team> getTeamsByUser(@PathVariable(value = "email") String email){
 		return teamRepository.findByUsers_Email(email);
 	}
+
 }

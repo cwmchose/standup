@@ -23,7 +23,6 @@ public class Invite implements Comparable<Invite>{
     @JsonBackReference(value="userReference")
     private User user;
 
-
     public Long getInviteID() {
         return this.inviteID;
     }

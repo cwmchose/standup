@@ -123,9 +123,8 @@
                 headers: {
                         'Content-Type': 'application/json'
                     },
-                dataType:'application/json',
                 success : function(data) {              
-                    alert('Data: '+ data);
+                    $('#entryModal').modal('toggle');
                 },
                 error : function(request,error)
                 {
