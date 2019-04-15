@@ -57,7 +57,7 @@ public class HomeController{
 
 	@GetMapping("/")
 	public String home(Model model, Principal principal){
-		return "home";
+		return "signIn";
 	}
 }
 
