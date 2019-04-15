@@ -55,7 +55,7 @@ public class HomeController{
 	@Autowired
 	InviteRepository inviteRepository;
 
-	@GetMapping("/home")
+	@GetMapping("/")
 	public String home(Model model, Principal principal){
 		return "home";
 	}
