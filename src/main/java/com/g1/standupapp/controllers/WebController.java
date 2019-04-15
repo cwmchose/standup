@@ -653,7 +653,7 @@ public class WebController{
 	@GetMapping("/home")
 	public String home(Model model, Principal principal){
 		OAuth2AuthenticationToken test = (OAuth2AuthenticationToken) principal;
-		model.addAttribute("name", test.getPrincipal().getAttributes().get("name").toString());
+		model.addAttribute("auth", test.getPrincipal().getAttributes());
 		return "home";
 	}
 
