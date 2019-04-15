@@ -63,14 +63,12 @@
       profile = googleUser.getBasicProfile();
 
       $.ajax({
-        url : 'http://localhost:5000/api/user/email/' + profile.getEmail(),
+        url : 'http://localhost:5000/api/user/' + profile.getEmail() + '/email',
         type : 'GET',
         success : function(data) {
           if(!$.trim(data)) {
             createUser(profile);
-          } else {
-            console.log("swell");
-          }   
+          }
         },
         error : function(request,error) {
           alert(request.responseText);
