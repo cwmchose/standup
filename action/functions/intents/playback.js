@@ -1,65 +1,72 @@
 //
 //
-// intent fulfillment for create
+// intent fulfillment for playback
 //
 //@Author: coleman mchose, cole.mchose@gmail.com
 const axios = require('axios');
 const backend = 'http://capstone-env.ruehm2cvrs.us-east-2.elasticbeanstalk.com/api/'
 const CONTEXTS = require('../lib/app-contexts');
-const test_data = require('../lib/test-data');
+const templates = require('../lib/test-data');
 const utils  = require('../lib/standup-utils');
 const strings = require('../lib/strings');
 
 module.exports = {
 
 	'playback': async (conv, params) => {
-		conv.data.current_action = 'listening to a stand up';
+		conv.data.current_action = 'playback';
 		console.log('in playback');
+		console.log(CONTEXTS);
+		console.log(CONTEXTS.menu);
 		//match team to input or it will reprompt the user
-		const team_found = utils.teamValidation(conv,params.team_name); 
-		if(team_found != null){
-			return conv.ask(utils.getPrompt(conv, 'select_team', teams));
+		conv.data.for_select = 'playback';	
+		if(params.date){
+			conv.data.date = params.date[0].substring(0,10);
+		}
+		if(!conv.data.team_selected){
+			const found_team = utils.teamValidation(conv,params.team_name); 
+				if(!found_team){
+					return conv.ask(utils.getPrompt(conv, 'select_team', conv.data.db_teams));
+				}
 		}
 
 		
+		console.log(params);
 		console.log(conv.user.profile.payload);
 		const payload = conv.user.profile.payload;
 		const email = payload.email; 
-		const date = params.date.substring(0,10);
+		const date = conv.data.date;
 		console.log(email);
 		console.log(date);
 		try{
-			const rs = await axios.get(backend+'standup/' + date + '/email/' + email);
-			conv.data.standups = rs.data;
-			if(rs.data[0] == null){
-				conv.data.myContext = CONTEXTS.menu;
-				conv.contexts.set(CONTEXTS.menu.name, 1);
+			const rs = await axios.get(
+				backend+'standup/' + date + '/team/' + conv.data.current_team.teamName);
+			console.log(rs.data);
+			conv.data.standup = rs.data;
 
+			console.log(CONTEXTS);
+			console.log(CONTEXTS.menu);
+			conv.data.myContext = CONTEXTS.menu;
+			console.log(conv.data.myContext);
+			conv.contexts.set(CONTEXTS.menu.name, 1);
+			if(rs.data == null){
+				conv.data.current_team = null;
 				return conv.ask(utils.getPrompt(conv, 'no_standup', 
 					{
 						team : conv.data.current_team, 
 					 	date: date
 					}));
 			}
-
-			conv.data.myContext = CONTEXTS.playback;
-			conv.contexts.set(CONTEXTS.playback.name, 1);
-
-			for(const standup of conv.data.standups){
-				if(standup.team.teamName == conv.data.current_team){
-					conv.data.current_standup = standup
-				}
-			}
-
-			console.log(rs.data);
-			console.log(rs.data[0]);
-			return conv.ask(utils.getPrompt(conv, 'playback_prompt'));
-
+			return conv.ask(utils.getPrompt(conv, 'play_entire', conv.data.standup));
 		} catch(error) {
 			console.log(error)
 			conv.data.myContext = CONTEXTS.menu;
 			conv.contexts.set(CONTEXTS.menu.name, 1);
-			return conv.ask(utils.getPrompt(conv, 'http_error'));
+			conv.data.current_team = null;
+			return conv.ask(utils.getPrompt(conv, 'no_standup',
+					{
+						team : conv.data.current_team, 
+					 	date: date
+					}));
 		}
 	},
 
@@ -87,3 +94,18 @@ module.exports = {
 	}
 
 };
+			/*
+
+			conv.data.myContext = CONTEXTS.playback;
+			conv.contexts.set(CONTEXTS.playback.name, 1);
+
+			for(const standup of conv.data.standups){
+				if(standup.team.teamName == conv.data.current_team){
+					conv.data.current_standup = standup
+				}
+			}
+
+			console.log(rs.data);
+			console.log(rs.data[0]);
+			return conv.ask(utils.getPrompt(conv, 'playback_prompt'));
+			*/

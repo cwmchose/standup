@@ -1,41 +1,39 @@
 package com.g1.standupapp.controllers;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Set;
 import java.security.Principal;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.validation.Valid;
 
-import com.g1.standupapp.repositories.*;
-import com.g1.standupapp.models.*;
+import com.g1.standupapp.models.Invite;
+import com.g1.standupapp.models.Standup;
+import com.g1.standupapp.models.StandupEntry;
+import com.g1.standupapp.models.Team;
+import com.g1.standupapp.models.User;
+import com.g1.standupapp.repositories.InviteRepository;
+import com.g1.standupapp.repositories.StandupEntryRepository;
+import com.g1.standupapp.repositories.StandupRepository;
+import com.g1.standupapp.repositories.TeamRepository;
+import com.g1.standupapp.repositories.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.format.annotation.DateTimeFormat.ISO;
-import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 
 @Controller
 @RequestMapping("/api")
@@ -52,6 +50,9 @@ public class APIController{
 
 	@Autowired
 	StandupRepository standupRepository;
+
+	@Autowired
+	InviteRepository inviteRepository;
 
 	@RequestMapping("/test")
 	@ResponseBody
@@ -109,6 +110,7 @@ public class APIController{
 		user.setLastName(userDetails.getLastName());
 		user.setTeams(userDetails.getTeams());
 		user.setEmail(userDetails.getEmail());
+		user.setInvites(userDetails.getInvites());
 
 		User updatedUser = userRepository.save(user);
 		return updatedUser;
@@ -132,7 +134,66 @@ public class APIController{
 	}
 	//// End of User CRUD
 
+	//// Start of Invite CRUD
+	@RequestMapping(value = "/invite", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public List<Invite> getAllInvites() {
+    	return inviteRepository.findAll();
+	}
 
+	@RequestMapping(value = "/invite", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> saveInvite(@Valid @RequestBody Invite invite) {
+		if(inviteRepository.findByUser_UserIDAndTeamName(invite.getUser().getUserID(), invite.getTeamName()).isPresent()){
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invite already sent");
+		}
+		else{
+			inviteRepository.save(invite);
+			return ResponseEntity.ok().build();
+		}
+	}
+
+	@RequestMapping(value = "/invite/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public Invite getInviteById(@PathVariable(value = "id") Long inviteId) {
+		if(inviteRepository.findById(inviteId).isPresent())
+			return inviteRepository.findById(inviteId).get();
+		else
+			return null;
+			
+	}
+
+	// fix
+	@RequestMapping(value = "/invite/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public Invite updateInvite(@PathVariable(value = "id") Long inviteId, @Valid @RequestBody Invite inviteDetails) {
+		Invite invite = inviteRepository.findById(inviteId).get();
+
+		invite.setTeamName(inviteDetails.getTeamName());
+		invite.setUser(inviteDetails.getUser());
+
+		Invite updatedInvite = inviteRepository.save(invite);
+		return updatedInvite;
+	}
+
+	@RequestMapping(value = "/invite/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> deleteInvite(@PathVariable(value = "id") Long inviteId) {
+		if(inviteRepository.findById(inviteId).isPresent()){
+			Invite invite = inviteRepository.findById(inviteId).get();
+			// User user = invite.getUser();
+			// Set<Invite> invites = user.getInvites();
+			// invites.remove(invite);
+			// user.setInvites(invites);
+			// userRepository.save(user);
+			inviteRepository.delete(invite);
+			return ResponseEntity.ok().build();
+		}
+		else{
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invite not found");
+		}
+	}
+	//// End of Invite CRUD
 
 	//// Start of Team CRUD
 	@RequestMapping(value = "/team", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -300,6 +361,7 @@ public class APIController{
 			return null;
 	}
 
+	// fix
 	@RequestMapping(value = "/standup/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public Standup updateStandup(@PathVariable(value = "id") Long standupId, @Valid @RequestBody Standup standupDetails) {
@@ -309,6 +371,7 @@ public class APIController{
 		standup.setDate(standupDetails.getDate());
 		standup.setTeam(standupDetails.getTeam());
 		standup.setStandups(standupDetails.getStandups());
+
 		Standup updatedStandup = standupRepository.save(standup);
 		return updatedStandup;
 	}
@@ -339,10 +402,11 @@ public class APIController{
 		cole.setLastName("McHose");
 		cole.setEmail("cole.mchose@gmail.com");
 		cole.setTeams(new HashSet<>());
+		cole.setInvites(new HashSet<>());
 		userRepository.save(cole);
 
 		Team dummyTeam = new Team();
-		dummyTeam.setScrumMasterEmail("eivillarreal@mix.wvu.edu");
+		dummyTeam.setScrumMasterEmail("cole.mchose@gmail.com");
 		dummyTeam.setTeamName("Alpha Team");
 		dummyTeam.setDescription("Our goal is to build a working capstone.");
 		Set<User> userSet = new HashSet<User>();
@@ -353,14 +417,20 @@ public class APIController{
 		ed.setLastName("Villarreal");
 		ed.setEmail("eivillarreal@mix.wvu.edu");
 		ed.setTeams(new HashSet<>());
+		ed.setInvites(new HashSet<>());
 		userRepository.save(ed);
-		userSet.add(ed);
+
+		Invite invite = new Invite();
+		invite.setTeamName("Alpha Team");
+		invite.setUser(ed);
+		inviteRepository.save(invite);
 
 		User tony = new User();
 		tony.setFirstName("Tony");
 		tony.setLastName("Bag-O-Donuts");
 		tony.setEmail("ajdt703@gmail.com");
 		tony.setTeams(new HashSet<>());
+		tony.setInvites(new HashSet<>());
 		userRepository.save(tony);
 		userSet.add(tony);
 
@@ -379,7 +449,7 @@ public class APIController{
 		teamRepository.save(dummyTeam);
 
 		Standup standup = new Standup();
-		LocalDate localDate = LocalDate.now();
+		LocalDate localDate = LocalDate.now(ZoneId.of("America/New_York"));
 		standup.setDate(localDate);
 		standup.setTeam(dummyTeam);
 		Set<StandupEntry> standupSet = new HashSet<StandupEntry>();
@@ -402,7 +472,6 @@ public class APIController{
 		return "OwO what's this";
 	}
 
-	// fix
 	@RequestMapping(value = "user/email/{email}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public User getUserByEmail(@PathVariable(value = "email") String email){
@@ -461,6 +530,49 @@ public class APIController{
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User not found");
 	}
 
+	@RequestMapping(value = "invite/accept/{inviteID}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> acceptInviteFromTeam(@PathVariable(value = "inviteID") Long inviteID){
+		if(inviteRepository.findById(inviteID).isPresent()){
+			Invite invite = inviteRepository.findById(inviteID).get();
+			if(userRepository.findById(invite.getUser().getUserID()).isPresent()){
+				User user = userRepository.findById(invite.getUser().getUserID()).get();
+				if(teamRepository.findByTeamName(invite.getTeamName()).isPresent()){
+					Team team = teamRepository.findByTeamName(invite.getTeamName()).get();
+					if(!team.getUsers().contains(user)){
+						Set<User> users = team.getUsers();
+						users.add(user);
+						team.setUsers(users);
+						teamRepository.save(team);
+						inviteRepository.delete(invite);
+						return ResponseEntity.ok().build();
+					}
+					else
+						return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User already present");	
+				}
+				else
+					return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Team not found");
+			}
+			else
+				return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User not found");
+		}
+		else
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invite not found");
+	}
+
+	@RequestMapping(value = "invite/decline/{inviteID}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<?> deleteUserFromTeam(@PathVariable(value = "inviteID") Long inviteID){
+		if(inviteRepository.findById(inviteID).isPresent()){
+			Invite invite = inviteRepository.findById(inviteID).get();
+			inviteRepository.delete(invite);
+			return ResponseEntity.ok().build();
+		}
+		else
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invite not found");
+		
+	}
+
 	//yyyy-mm-dd
 	@RequestMapping(value = "standup/{date}/team/{teamName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
@@ -497,4 +609,5 @@ public class APIController{
 	public List<Team> getTeamsByUser(@PathVariable(value = "email") String email){
 		return teamRepository.findByUsers_Email(email);
 	}
+
 }

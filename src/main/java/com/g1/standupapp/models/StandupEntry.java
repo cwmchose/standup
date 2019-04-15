@@ -1,12 +1,10 @@
 package com.g1.standupapp.models;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name ="Standup_Entry", uniqueConstraints = {@UniqueConstraint(columnNames = {"date","team_id","user_id"})})

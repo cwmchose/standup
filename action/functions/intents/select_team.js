@@ -4,10 +4,10 @@ const CONTEXTS = require('../lib/app-contexts');
 const templates = require('../lib/test-data');
 const utils  = require('../lib/standup-utils');
 const strings = require('../lib/strings');
-const create = require('../intents/create');
 
 module.exports = {
 	'select_team' : (conv, params) => { 
+		console.log('in select');
 		const teamValidation = utils.teamValidation(conv,params.team_name); 
 		if(!teamValidation){
 			conv.contexts.set(CONTEXTS.select_team.name, 1);
@@ -17,6 +17,6 @@ module.exports = {
 		conv.ask(utils.getPrompt(conv, 'team_selected', 
 			{ team: conv.data.current_team, action: conv.data.current_action}));
 		conv.data.team_selected = true;	
-		return create.create_standup(conv);
+
 	},
 }

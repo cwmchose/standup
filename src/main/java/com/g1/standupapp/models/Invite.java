@@ -18,14 +18,10 @@ public class Invite implements Comparable<Invite>{
     @Column(name = "team_name", nullable = false)
     private String teamName;
 
-    @Column(name = "date", nullable = false)
-    private LocalDate date;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonBackReference(value="userReference")
     private User user;
-
 
     public Long getInviteID() {
         return this.inviteID;
@@ -45,14 +41,6 @@ public class Invite implements Comparable<Invite>{
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public LocalDate getDate() {
-        return this.date;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
     }
 
     @Override

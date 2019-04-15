@@ -30,7 +30,7 @@ module.exports = {
 		if(!name || name == '' || name.length>30)
 			return false;
 		//if it contains non alpha nums return false
-		var re = /^[a-z0-9 ]+$/i;
+		var re = /^[a-z0-9' ]+$/i;
 		return re.exec(name) == null ? false : true ;
 	},
 	
@@ -47,13 +47,16 @@ module.exports = {
 		return date;
 	},
 	'teamValidation' : (conv, team_name) => {
+		console.log('team val');
 		if(conv.data.db_teams.length == 1){
-			conv.data.current_team = db_teams[0];
+			console.log('one team');
+			conv.data.current_team = conv.data.db_teams[0];
 			return true;
 		}
 
 		if(team_name == null || team_name == ''){
-			conv.contexts.set(CONTEXTS.select_team.name, 1);
+			console.log('set sel team');
+			conv.contexts.set('select_team_context', 1);
 			return false;
 		}
 		console.log(team_name);
