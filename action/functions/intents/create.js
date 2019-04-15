@@ -36,31 +36,36 @@ module.exports = {
 		conv.data.current_action = 'creating a stand up.';
 		console.log(params);
 		conv.data.myContext = CONTEXTS.today;
+		conv.data.for_select = 'create';	
 		if(!conv.data.team_selected){
-		const found_team = utils.teamValidation(conv,params.team_name); 
-			if(!found_team){
-				return conv.ask(utils.getPrompt(conv, 'select_team', conv.data.db_teams));
+			const found_team = utils.teamValidation(conv,params.team_name); 
+				if(!found_team){
+					return conv.ask(utils.getPrompt(conv, 'select_team', conv.data.db_teams));
+				}
 			}
-		}
 		//team selected
 		const today = utils.getTodaysDate();
 		console.log('today: ' + today);
 		conv.data.entry = templates.entry;
+		conv.data.entry.user = conv.data.db_user;
+		conv.data.entry.date = today;
+		conv.data.entry.team = conv.data.current_team;
 		const payload = conv.user.profile.payload;
 		const email = payload.email; 
 	
 		try{
 			//get entry from db for team for today
-			const rs = await axios.get(backend+'entry/' + today + '/' + 
+			const rs = await axios.get(backend+'standup/' + today + '/team/' + 
 				conv.data.current_team.teamName );
-			const todays_entries = rs.data;
+			console.log(rs.data);
+			const todays_entries = rs.data.standups;
 			var entry = '';
 			for(const standup of todays_entries){
-				if(standup.team.teamName == conv.data.current_team){
-
+				if(standup.user.email == email){
+					entry = standup;
 				}	
 			}
-			if(entry){
+			if(entry != ''){
 				conv.data.update = 1;
 				conv.data.entry = entry;
 				conv.data.myContext = CONTEXTS.submit_review;
@@ -70,7 +75,8 @@ module.exports = {
 					conv, 'already_existing', conv.data.current_team));
 			}
 		}catch(error){
-			return conv.ask(utils.getPrompt(conv, 'http_error'));
+			console.log('error in create: ' + error);
+			//return conv.ask(utils.getPrompt(conv, 'http_error'));
 		}
 		conv.data.update = 0;
 		conv.contexts.set(CONTEXTS.today.name, 1);
@@ -127,6 +133,7 @@ module.exports = {
 
 		conv.contexts.set(CONTEXTS.redo.name, 1);
 		conv.data.redo_flag = 3;
+		conv.data.entry.blockingText = '';
 
 		return conv.ask(utils.getPrompt(conv, 'submit_review'));
 	},
@@ -171,6 +178,7 @@ module.exports = {
 		}
 		else{
 			console.log('redo x');
+			conv.data.current_team = null;
 			conv.data.myContext = CONTEXTS.menu;
 			conv.contexts.set(CONTEXTS.menu.name, 1);
 			return conv.ask(utils.getPrompt(conv, 'invalid_redo'));	
@@ -202,7 +210,7 @@ module.exports = {
 			conv.data.entry.todayText = input;
 		}
 		if(conv.data.edit_choice == 'tomorrow'){
-			tomorrow.data.entry.tomorrowText = input;
+			conv.data.entry.tomorrowText = input;
 		}
 		conv.data.myContext = CONTEXTS.submit_review;
 		conv.contexts.set(CONTEXTS.blocking_choice.name, 1);
@@ -228,16 +236,22 @@ module.exports = {
 		//post standup entry
 		try{
 			var rs = '';
-			if(conv.data.update)
-				rs = await axios.post(backend + 'entry/' + conv.data.entry.standupEntryID, conv.data.entry);
-			
-			rs = await axios.post(backend + 'entry', conv.data.entry);
+
+			if(conv.data.update){
+				rs = await axios.put(backend + 'entry/' + 
+					conv.data.entry.standupEntryID, conv.data.entry);
+			}
+			else{
+				rs = await axios.post(backend + 'entry', conv.data.entry);
+			}
 			console.log('swell');
 			console.log(rs);
+			conv.data.current_team = null;
 			return conv.ask("Your stand up was saved successfully.");
 		} catch(error) {
 			console.log('yikes');
 			console.log(error);
+			conv.data.current_team = null;
 			return conv.ask("failed to post submission");
 		}
 
