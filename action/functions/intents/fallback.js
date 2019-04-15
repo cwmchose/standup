@@ -38,7 +38,6 @@ module.exports = {
 			conv.contexts.set(conv.data.myContext.name, 1);
 			console.log('set');
 		}
-		conv.ask(conv.data.myContext.help);
 	},
 
 

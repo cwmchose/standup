@@ -1,5 +1,17 @@
 const utils  = require('./standup-utils');
 
+function listTeams(teams){
+	if(teams == null || teams.length == 0)
+		return 'I don\'t think you\'re on any teams at the moment';
+	var str = 'The teams I have you on are: \n';
+	console.log(teams);
+	for(const team of teams){
+		console.log(team);
+		str += team.teamName + '\n';
+	}
+	return str;
+}
+
 module.exports = {
 	
 	'prompts' : {
@@ -18,8 +30,11 @@ module.exports = {
 		
 /****** CREATE STANDUP ******/
 		'already_existing': {
-			text: ['You already made a stand up for today. You can either say \"review\" '+
-					'to hear what you said, or \"overwrite\" if you just want to redo it now.'],
+			text: (team) => {
+				return 'You already made a stand up for ' + team.teamName + 
+					' today. You can review, edit and resubmit it if you\'d like, ' + 
+					'or just return to the main menu.';
+			}
 		},
 		'today' : {
 			text: ['Ok, what did you do today',
@@ -85,8 +100,8 @@ module.exports = {
 					'for ' + data.date + '.';
 			}
 		},
-		'playback_entire' : {
-			text: (standup) => {
+		'play_entire' : {
+			text: (data) => {
 				const team = data.team.teamName;
 				const date = data.date;
 				const standups = data.standups;
@@ -158,22 +173,14 @@ module.exports = {
 /****** LIST TEAMS ******/
 		'list_teams': {
 			text: (teams) => {
-				if(teams == null || teams.length == 0)
-					return 'I don\'t think you\'re on any teams at the moment';
-				var str = 'The teams I have you on are: \n';
-				console.log(teams);
-				for(const team of teams){
-					console.log(team);
-					str += team.teamName + '\n';
-				}
-				return str;
+				return listTeams(teams);
 			}
 		},
 
 /****** EXTRAS ******/
 		'select_failed': {
 			text: (data) => {
-				return 'Sorry, I could not match' + data + ' with any of the teams I currently see you on. Please try again ';
+				return 'Sorry, I could not match ' + data + ' with any of the teams I currently see you on. Please try again ';
 			}
 		},
 		'team_selected': {
@@ -183,12 +190,8 @@ module.exports = {
 		},
 		'select_team': {
 			text: (teams) => {
-				var str = 'What team would you like to do this for? ' + 
-					'You belong to: '; 
-				for(var i =0; i<teams.length-2; i++){
-					str += teams[i].teamName + ', ';
-				}
-				str+= ' and ' + teams[teams.length-1];
+				var str = 'What team would you like to do this for? '; 
+				str += listTeams(teams);
 				return str;
 			}
 		},

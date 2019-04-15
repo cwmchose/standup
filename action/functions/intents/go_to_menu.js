@@ -6,8 +6,9 @@ const strings = require('../lib/strings');
 module.exports = {
 	'go_to_menu' : (conv) => {
 		console.log('in go to menu');
-		conv.myContext = CONTEXTS.menu;
+		conv.data.current_team = null;
+		conv.data.myContext = CONTEXTS.menu;
 		conv.contexts.set(CONTEXTS.menu.name, 1);
-		conv.ask(strings.responses.go_to_menu);
+		conv.ask(utils.getPrompt(conv, 'go_to_menu'));
 	}
 }

@@ -7,7 +7,7 @@ module.exports = {
 	menu: {
 		name:  "menu_context",
 		reprompt: "",
-		help: "You're at the main menu. You can  make or edit your stand up for today and listen to your team's stand ups."
+		help: "You're at the main menu. You can  make or edit your stand up for today, listen to your team's stand ups, list the teams you belong to, create a team, or check for invites from other teams."
 	},
 
 /********* CREATEING STANDUP *********/

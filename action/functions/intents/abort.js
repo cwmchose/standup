@@ -8,9 +8,9 @@ const strings = require('../lib/strings');
 module.exports = {
 	'abort' : (conv) => {
 		if(conv.data.myContext == CONTEXTS.menu){
-			return conv.close(utils.getPrompts(conv, 'abort_final'));
+			return conv.close(utils.getPrompt(conv, 'abort_final'));
 		}
-			return conv.ask(utils.getPrompts(conv, 'abort_to_menu'));
+			return conv.ask(utils.getPrompt(conv, 'abort_to_menu'));
 	}
 }
 
