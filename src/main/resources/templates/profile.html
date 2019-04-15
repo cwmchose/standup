@@ -25,24 +25,33 @@
               </nav>
 
 	<div class="container">
-      <p class="text-center mt-5">View and edit your profile</p>
-        <div class="bg-white rounded shadow-sm p-3 mt-5 mb-5">
-            <h4 class="col-4">User Profile</h5>
-            <div>
-              <form>
-                <h5 class="ml-3 mt-5">Email</h5>
-                <input type="text" class="text-muted ml-3" th:value="${user.email}" readonly />
-                <h5 class="ml-3 mt-5">First Name</h5>
-                <input type="text" id="firstName" class="ml-3" th:value="${user.firstName}" required />
-                <h5 class="ml-3 mt-5">Last Name</h5>
-                <input type="text" id="lastName" class="ml-3" th:value="${user.lastName}" required />
-              </form>
-              <div class="footer mb-5 mt-3">
-                <button id="button" class="btn btn-outline-primary float-right" onclick="buttonClicked()">Save Changes</button>
-              </div>
-            </div>
-        </div>
-	</div>
+    <p class="text-center mt-5">View and edit your profile</p> 
+    <div  style="width:33%; margin-left: 33%; align-content: center;" class="mt-5 card">
+    <div class="card-body">
+      <form>
+          <p class="h4 text-center py-4">User Profile</p>
+          
+          <div class="md-form">   
+              <input type="text" class="text-muted form-control" th:value="${user.email}" readonly />
+              <label class="ml-1 font-weight-light">User Email</label>
+          </div>
+          
+          <div class="md-form">
+              <input  type="text" id="firstName" th:value="${user.firstName}" class="form-control">
+              <label class="ml-1 font-weight-light">First Name</label>
+          </div>
+          
+          <div class="md-form">
+              <input type="text" id="lastName" th:value="${user.lastName}" class="form-control">
+              <label class="ml-1 font-weight-light">Last Name</label>
+          </div>
+
+          <div class="text-center py-4 mt-3">
+              <button class="btn btn-outline-primary" onclick="buttonClicked()">Save Changes</button>
+          </div>
+      </form-group>
+    </div>
+  </div>
 
   <!-- Optional JavaScript -->
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
