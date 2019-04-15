@@ -4,6 +4,8 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="google-signin-client_id" content="839171694975-ngoa7hfh4fifgiq91fql9nrj7ndr157i.apps.googleusercontent.com">
+
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -37,7 +39,9 @@
         <div class="col-6 mx-auto col-md-6 order-md-1 text-center text-md-left pr-md-5">
           <h1 class="mb-3">Standup Assistant</h1>
           <p class="lead">This web application is designed as a supplemental tool to be used in conjunction with our Google Assistant action in order to record, review, and maintain daily standups for your teams.</p>
-          <p class="lead mb-4">It was created using Spring Boot, Bootstrap CSS, and jQuery. The application is currently hosted on Amazon Web Services. You are able to manage and view daily standups across multiple teams from individual team members.</p>
+          <p class="lead mb-4">It was created using Spring Boot, Bootstrap CSS, and jQuery. The application is currently hosted on Amazon Web Services. You are able to manage and view daily standups across multiple teams from individual team members. Below, you can sign in and registe with your Google account.</p>
+          <div class="g-signin2" data-onsuccess="onSignIn" align="center"></div>
+          <button onclick="signOut()">sign out homie</button>
         </div>
       </div>
   </div>
@@ -50,9 +54,56 @@
   <!-- Optional JavaScript -->
   <script src="https://apis.google.com/js/platform.js" async defer></script>
 	<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.4.0.js" integrity="sha256-DYZMCC8HTC+QDr5QNaIcfR7VSPtcISykd+6eSmBW5qo=" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+  <script>
+    function onSignIn(googleUser) {
+      profile = googleUser.getBasicProfile();
+
+      $.ajax({
+        url : 'http://localhost:5000/api/user/email/' + profile.getEmail(),
+        type : 'GET',
+        success : function(data) {
+          if(!$.trim(data)) {
+            createUser(profile);
+          } else {
+            console.log("swell");
+          }   
+        },
+        error : function(request,error) {
+          alert(request.responseText);
+        }
+      });
+    }
+
+    function createUser(userProfile) {
+      var user = {"email":userProfile.getEmail(), "firstName":userProfile.getGivenName(), "lastName":userProfile.getFamilyName(), "teams":[], "invites":[]}
+      $.ajax({
+        url : 'http://localhost:5000/api/user/',
+        type : 'POST',
+        data: JSON.stringify(user),
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        success : function(data) {
+          console.log(data);
+        },
+        error : function(request,error) {
+          alert(request.responseText);
+        }
+      });
+    }          
+  </script>
+  <script>
+    function signOut() {
+      var auth2 = gapi.auth2.getAuthInstance();
+      auth2.signOut().then(function () {
+        console.log('User signed out.');
+      });
+    }
+  </script>
 
   <style>
     .footer {
