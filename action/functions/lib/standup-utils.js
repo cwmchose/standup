@@ -50,14 +50,14 @@ module.exports = {
 		console.log('team val');
 		if(conv.data.db_teams.length == 1){
 			console.log('one team');
-			conv.data.current_team = conv.data.db_teams[0];
-			return true;
+			//conv.data.current_team = conv.data.db_teams[0];
+			return conv.data.db_teams[0];
 		}
 
 		if(team_name == null || team_name == ''){
 			console.log('set sel team');
-			conv.contexts.set('select_team_context', 1);
-			return false;
+			//conv.contexts.set('select_team_context', 1);
+			return null;
 		}
 		console.log(team_name);
 		var teams = [];
@@ -71,8 +71,8 @@ module.exports = {
 			return false;
 		for(const team of conv.data.db_teams){
 			if(team.teamName == best_match[0]){
-				conv.data.current_team = team
-				return true;
+				//conv.data.current_team = team
+				return team;
 			}
 		}
 		
